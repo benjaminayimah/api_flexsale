@@ -25,27 +25,48 @@ class tempController extends Controller
 
     public function store(Request $request)
     {
+        
 
-        if($request->file('image')){
-            $rawfile = $_FILES['image']["name"];
-            $split = explode(".", $rawfile);
-            $fileExt = end($split);
-            $imgFinaltitle = preg_replace('#[^a-z0-9]#i', '', 'tmp');
-            $filename = $imgFinaltitle . '_'. rand(1,999999999) . '.'. $fileExt;
-            $file = $request->file('image');
-
-            $user = JWTAuth::parseToken()->toUser();
-            if (!Storage::directories('public/'.$user->id.'/temp')) {
-                Storage::makeDirectory('public/'.$user->id.'/temp');
+        try {
+            if($request->file('image')){
+                $rawfile = $_FILES['image']["name"];
+                $split = explode(".", $rawfile);
+                $fileExt = end($split);
+                $imgFinaltitle = preg_replace('#[^a-z0-9]#i', '', 'tmp');
+                $filename = $imgFinaltitle . '_'. rand(1,999999999) . '.'. $fileExt;
+                $file = $request->file('image');
+    
+                $user = JWTAuth::parseToken()->toUser();
+                if (!Storage::directories('public/'.$user->id.'/temp')) {
+                    Storage::makeDirectory('public/'.$user->id.'/temp');
+                }
+                Storage::disk('public')->put($user->id.'/temp'.'/'.$filename, File::get($file));
+                $id = rand(1,999999999);
+                return response()->json([
+                    'id' => $id,
+                    'img' => $filename,
+                ], 200);
+    
             }
-            Storage::disk('public')->put($user->id.'/temp'.'/'.$filename, File::get($file));
-            $id = rand(1,999999999);
+        } catch (JWTException $e) {
             return response()->json([
-                'id' => $id,
-                'img' => $filename,
-            ], 200);
-
+                'msg' => 'Error!'
+            ], 500);
         }
+
+    }
+    public function delAllTempImg() {
+        $user = JWTAuth::parseToken()->toUser();
+        //if (Storage::disk('public')->exists('public/'.$user->id.'/temp')) {
+            Storage::deleteDirectory('public/'.$user->id.'/temp');
+        //}if (Storage::disk('public')->exists('public/'.$user->id.'/temp2')) {
+            Storage::deleteDirectory('public/'.$user->id.'/temp2');
+        //}if (Storage::disk('public')->exists('public/'.$user->id.'/deleted')) {
+            Storage::deleteDirectory('public/'.$user->id.'/deleted');
+        //}
+        return response()->json([
+            'status' => 'success',
+        ], 200);
     }
 
 

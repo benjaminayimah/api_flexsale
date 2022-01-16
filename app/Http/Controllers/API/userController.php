@@ -32,19 +32,10 @@ class userController extends Controller
      */
     public function store(Request $request)
     {
-
         $user = JWTAuth::parseToken()->toUser();
-        //if (Storage::disk('public')->exists('public/'.$user->id.'/temp')) {
-            Storage::deleteDirectory('public/'.$user->id.'/temp');
-        //}if (Storage::disk('public')->exists('public/'.$user->id.'/temp2')) {
-            Storage::deleteDirectory('public/'.$user->id.'/temp2');
-        //}if (Storage::disk('public')->exists('public/'.$user->id.'/deleted')) {
-            Storage::deleteDirectory('public/'.$user->id.'/deleted');
-        //}
 
         try {
-
-            if($user->role == 'editor' || $user->role == 'admin' || $user->role == 'super'){
+            if($user->role == 'admin_suplier' || $user->role == 'admin_retail' || $user->role == 'seller' || $user->role == 'super'){
                 return response()->json([
                     'status' => 1,
                     'user' => $user

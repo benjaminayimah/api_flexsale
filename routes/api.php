@@ -18,6 +18,7 @@ Route::apiResources([
     'user' => 'API\userController',
     'sign-in' => 'API\signinController',
     'temp-upload' => 'API\tempController',
+
     'temp-editupload' => 'API\tempEditController',
     'products' => 'API\productController',
     'category' => 'API\categoryController',
@@ -25,8 +26,12 @@ Route::apiResources([
     'add-to-cart' => 'API\cartController',
     'checkout' => 'API\checkoutController'
 
-
 ]);
+Route::post('/del-alltemp-img' , [
+    'uses' => 'API\tempController@delAllTempImg',
+]);
+
+
 Route::post('/bulk-del-products', [
     'uses' => 'API\productController@bulkdelete',
 ]);
