@@ -8,6 +8,7 @@ use App\Http\Resources\Product as ProductResource;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 
 class tempController extends Controller
@@ -29,21 +30,20 @@ class tempController extends Controller
 
         try {
             if($request->file('image')){
+                $user = JWTAuth::parseToken()->toUser();
                 $rawfile = $_FILES['image']["name"];
                 $split = explode(".", $rawfile);
                 $fileExt = end($split);
-                $imgFinaltitle = preg_replace('#[^a-z0-9]#i', '', 'tmp');
+                $imgFinaltitle = preg_replace('#[^a-z0-9]#i', '', 'prod_'.$user->current);
                 $filename = $imgFinaltitle . '_'. rand(1,999999999) . '.'. $fileExt;
                 $file = $request->file('image');
     
-                $user = JWTAuth::parseToken()->toUser();
-                if (!Storage::directories('public/'.$user->id.'/temp')) {
-                    Storage::makeDirectory('public/'.$user->id.'/temp');
+                if (!Storage::directories('public/'.$user->current.'/temp')) {
+                    Storage::makeDirectory('public/'.$user->current.'/temp');
                 }
-                Storage::disk('public')->put($user->id.'/temp'.'/'.$filename, File::get($file));
-                $id = rand(1,999999999);
+                Storage::disk('public')->put($user->current.'/temp'.'/'.$filename, File::get($file));
+                
                 return response()->json([
-                    'id' => $id,
                     'img' => $filename,
                 ], 200);
     
@@ -57,12 +57,12 @@ class tempController extends Controller
     }
     public function delAllTempImg() {
         $user = JWTAuth::parseToken()->toUser();
-        //if (Storage::disk('public')->exists('public/'.$user->id.'/temp')) {
-            Storage::deleteDirectory('public/'.$user->id.'/temp');
-        //}if (Storage::disk('public')->exists('public/'.$user->id.'/temp2')) {
-            Storage::deleteDirectory('public/'.$user->id.'/temp2');
-        //}if (Storage::disk('public')->exists('public/'.$user->id.'/deleted')) {
-            Storage::deleteDirectory('public/'.$user->id.'/deleted');
+        //if (Storage::disk('public')->exists('public/'.$user->current.'/temp')) {
+            Storage::deleteDirectory('public/'.$user->current.'/temp');
+        //}if (Storage::disk('public')->exists('public/'.$user->current.'/temp2')) {
+            Storage::deleteDirectory('public/'.$user->current.'/temp2');
+        //}if (Storage::disk('public')->exists('public/'.$user->current.'/deleted')) {
+            Storage::deleteDirectory('public/'.$user->current.'/deleted');
         //}
         return response()->json([
             'status' => 'success',
@@ -81,8 +81,8 @@ class tempController extends Controller
     {
         $user = JWTAuth::parseToken()->toUser();
         //delete from folder
-        if (Storage::disk('public')->exists($user->id.'/temp'.'/'.$id)) {
-            Storage::disk('public')->delete($user->id.'/temp'.'/'.$id);
+        if (Storage::disk('public')->exists($user->current.'/temp'.'/'.$id)) {
+            Storage::disk('public')->delete($user->current.'/temp'.'/'.$id);
         }
         return response()->json([
             'status' => 'success'

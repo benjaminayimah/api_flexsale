@@ -15,25 +15,28 @@ class CreateProductsTable extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('storeID');
+            $table->string('store_id');
             $table->string('name');
-            $table->text('description')->nullable();
-            $table->string('price')->nullable();
+            $table->string('batch_no')->nullable();
             $table->string('image')->nullable();
-            $table->string('cpu')->nullable();
+            $table->enum('prod_type', ['retail', 'wholesale'])->default('retail');
+            $table->string('cost')->nullable();
+            $table->string('selling_price')->nullable();
             $table->string('profit')->nullable();
             $table->string('profit_margin')->nullable();
-            $table->string('qty_before')->nullable();
-            $table->string('quantity')->nullable();
-            $table->string('discount')->nullable();
-            $table->string('barcode')->nullable();
+            $table->string('stock')->nullable();
             $table->boolean('track_qty')->default(true);
+            $table->text('description')->nullable();
+            $table->string('supplier')->nullable();
             $table->boolean('continue_selling')->default(true);
+            $table->string('qty_before')->nullable();
+            $table->string('discount')->nullable();
             $table->string('status')->nullable();
-            $table->string('category')->nullable();
-            $table->string('product_type')->nullable();
-            $table->boolean('best_seller')->default(false);
-            $table->boolean('new_arrival')->default(false);
+            $table->string('added_by');
+
+
+            // $table->boolean('best_seller')->default(false);
+            // $table->boolean('new_arrival')->default(false);
             $table->timestamps();
         });
     }

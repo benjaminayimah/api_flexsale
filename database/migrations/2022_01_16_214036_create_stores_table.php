@@ -15,12 +15,17 @@ class CreateStoresTable extends Migration
     {
         Schema::create('stores', function (Blueprint $table) {
             $table->id();
-            $table->string('userID');
-            //$table->string('storeID');
+            $table->string('user_id');
             $table->string('name');
+            $table->string('classification');
+            $table->string('phone_1');
+            $table->string('phone_2')->nullable();
+            $table->text('address');
+            $table->string('city');
+            $table->string('region');
             $table->string('image')->nullable();
+            $table->enum('type', ['retail', 'wholesale', 'seller' ])->default('retail');
             $table->boolean('active')->default(true);
-            $table->boolean('history')->default(false);
             $table->timestamps();
         });
     }

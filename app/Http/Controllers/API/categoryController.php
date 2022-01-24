@@ -5,7 +5,7 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Category;
-use App\User;
+use App\Store;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\DB;
 use League\CommonMark\Inline\Element\Strong;
@@ -20,7 +20,7 @@ class categoryController extends Controller
     public function index()
     {
         $user = JWTAuth::parseToken()->toUser();
-        $categories = User::find($user->id)->getCategories;
+        $categories = Store::find($user->current)->getCategories;
         return response()->json([
             'categories' => $categories
         ], 200);
@@ -32,39 +32,39 @@ class categoryController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
-        $user_id = JWTAuth::parseToken()->toUser()->id;
+        $store_id = JWTAuth::parseToken()->toUser()->current;
         $this->validate($request, [
             'category' => 'required',
         ]);
         try {
             $categori = trim($request['category']);
-            $checkcat = DB::table('categories')->where(['user_id' => $user_id, 'name' => $categori])->get();
+            $checkcat = DB::table('categories')->where(['store_id' => $store_id, 'name' => $categori])->get();
             $count = count($checkcat);
             if ($count < 1){
                 $category = new Category();
-                $category->user_id = $user_id;
+                $category->store_id = $store_id;
                 $category->name = $categori;
                 $category->save();
-                $categories = DB::table('categories')->where(['user_id' => $user_id, 'name' => $categori])->first();
+                $categories = DB::table('categories')->where(['store_id' => $store_id, 'name' => $categori])->first();
                 return response()->json([
                     'title' => 'Successful!',
                     'categories' => $categories,
                     'status' => 1,
-                    'message' => $categori.' category is created.'
+                    'message' => '"'.$categori.'"'.' tag is created.'
                 ], 200);
 
             }else{
                 return response()->json([
                     'title' => 'Error!',
                     'status' => 2,
-                    'message' => 'This category already exists.'
+                    'message' => '"'.$categori.'"'.' tag already exists.' 
                 ], 200);
             }
 
         } catch (\Throwable $th) {
             return response()->json([
                 'title' => 'Error!',
-                'message' => 'Could not create category, please check your connection.'
+                'message' => 'Could not tag, please check your connection.'
             ], 500);
         }
 

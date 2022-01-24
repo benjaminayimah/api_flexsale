@@ -21,14 +21,19 @@ Route::apiResources([
 
     'temp-editupload' => 'API\tempEditController',
     'products' => 'API\productController',
-    'category' => 'API\categoryController',
+    'tag' => 'API\tagController',
     'product-detail' => 'API\productDetailController',
     'add-to-cart' => 'API\cartController',
-    'checkout' => 'API\checkoutController'
+    'checkout' => 'API\checkoutController',
+    'switch-store' => 'API\storeController',
+
 
 ]);
 Route::post('/del-alltemp-img' , [
     'uses' => 'API\tempController@delAllTempImg',
+]);
+Route::post('/get-all-filters' , [
+    'uses' => 'API\tagController@getAllFilters',
 ]);
 
 

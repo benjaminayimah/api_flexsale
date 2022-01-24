@@ -53,6 +53,7 @@ class signinController extends Controller
      */
     public function destroy()
     {
+        $user = JWTAuth::parseToken()->toUser(); 
         return response()->json(['status', 'logged out!'], 200);
     }
 }

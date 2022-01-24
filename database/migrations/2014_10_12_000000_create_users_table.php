@@ -17,9 +17,13 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            $table->boolean('email_verified')->default(false);
             $table->string('password');
-            $table->enum('role', ['super', 'admin_suplier', 'admin_retail', 'seller' ])->default('admin_retail');
+            $table->enum('role', ['super', 'admin', 'seller' ])->default('admin');
+            $table->string('current')->nullable();
+            $table->string('admin_id')->nullable();
+            $table->string('store_1')->nullable();
+            $table->string('store_2')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

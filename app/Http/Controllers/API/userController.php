@@ -7,8 +7,10 @@ use App\Product;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Image;
+use App\Store;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 
 class userController extends Controller
@@ -33,12 +35,22 @@ class userController extends Controller
     public function store(Request $request)
     {
         $user = JWTAuth::parseToken()->toUser();
+        $stores = User::find($user->id)->getStores;
+        $tags = Store::find($user->current)->getTags;
+        //$thisStore = ''
+        // foreach ($stores as $store) {
+        //     if ($user->current == $store->id) {
+        //         $thisStore = $store
+        //     }
 
+        // }
         try {
-            if($user->role == 'admin_suplier' || $user->role == 'admin_retail' || $user->role == 'seller' || $user->role == 'super'){
+            if($user->role == 'super' || $user->role == 'admin' || $user->role == 'seller'){
                 return response()->json([
                     'status' => 1,
-                    'user' => $user
+                    'user' => $user,
+                    'stores' => $stores,
+                    'tags' => $tags
                 ], 200);
             }
         } catch (\Throwable $th) {
