@@ -23,12 +23,12 @@ class productController extends Controller
      */
     public function index()
     {
-        $user = JWTAuth::parseToken()->toUser();
-        $products = Store::find($user->current)->getProducts;
-        return response()->json([
-            'products' => $products
+        // $user = JWTAuth::parseToken()->toUser();
+        // $products = Store::find($user->current)->getProducts;
+        // return response()->json([
+        //     'products' => $products
 
-        ], 200);
+        // ], 200);
 
     }
 

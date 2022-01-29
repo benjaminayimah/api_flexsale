@@ -37,20 +37,21 @@ class userController extends Controller
         $user = JWTAuth::parseToken()->toUser();
         $stores = User::find($user->id)->getStores;
         $tags = Store::find($user->current)->getTags;
-        //$thisStore = ''
-        // foreach ($stores as $store) {
-        //     if ($user->current == $store->id) {
-        //         $thisStore = $store
-        //     }
-
-        // }
+        $products = Store::find($user->current)->getProducts;
+        $filters = DB::table('tag_items')
+            ->join('products', 'tag_items.product_id', '=', 'products.id')
+            ->where('tag_items.store_id', '=', $user->current)
+            ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.name', 'products.image', 'products.batch_no')
+            ->get();
         try {
             if($user->role == 'super' || $user->role == 'admin' || $user->role == 'seller'){
                 return response()->json([
                     'status' => 1,
                     'user' => $user,
                     'stores' => $stores,
-                    'tags' => $tags
+                    'tags' => $tags,
+                    'filters' => $filters,
+                    'products' => $products
                 ], 200);
             }
         } catch (\Throwable $th) {

@@ -35,6 +35,10 @@ Route::post('/del-alltemp-img' , [
 Route::post('/get-all-filters' , [
     'uses' => 'API\tagController@getAllFilters',
 ]);
+Route::post('/get-this-filter' , [
+    'uses' => 'API\tagController@getThisFilter',
+]);
+
 
 
 Route::post('/bulk-del-products', [
