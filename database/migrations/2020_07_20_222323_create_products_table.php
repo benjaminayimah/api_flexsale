@@ -19,7 +19,7 @@ class CreateProductsTable extends Migration
             $table->string('name');
             $table->string('batch_no')->nullable();
             $table->string('image')->nullable();
-            $table->enum('prod_type', ['retail', 'wholesale'])->default('retail');
+            $table->boolean('prod_type')->default(false);
             $table->string('cost')->nullable();
             $table->string('selling_price')->nullable();
             $table->string('profit')->nullable();

@@ -38,6 +38,8 @@ class userController extends Controller
         $stores = User::find($user->id)->getStores;
         $tags = Store::find($user->current)->getTags;
         $products = Store::find($user->current)->getProducts;
+        $discounts = Store::find($user->current)->getDiscounts;
+
         $filters = DB::table('tag_items')
             ->join('products', 'tag_items.product_id', '=', 'products.id')
             ->where('tag_items.store_id', '=', $user->current)
@@ -51,7 +53,8 @@ class userController extends Controller
                     'stores' => $stores,
                     'tags' => $tags,
                     'filters' => $filters,
-                    'products' => $products
+                    'products' => $products,
+                    'discounts' => $discounts
                 ], 200);
             }
         } catch (\Throwable $th) {
@@ -60,11 +63,6 @@ class userController extends Controller
                 'status' => 'Token error.'
             ], 500);
         }
-
-
-        return response()->json([
-            'status' => ""
-        ], 200);
 
     }
 

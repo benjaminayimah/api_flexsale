@@ -15,4 +15,7 @@ class Store extends Model
     public function getFilters() {
         return $this->hasMany(TagItem::class);
     }
+    public function getDiscounts() {
+        return $this->hasMany(Discount::class);
+    }
 }

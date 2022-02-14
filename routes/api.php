@@ -18,7 +18,6 @@ Route::apiResources([
     'user' => 'API\userController',
     'sign-in' => 'API\signinController',
     'temp-upload' => 'API\tempController',
-
     'temp-editupload' => 'API\tempEditController',
     'products' => 'API\productController',
     'tag' => 'API\tagController',
@@ -26,17 +25,26 @@ Route::apiResources([
     'add-to-cart' => 'API\cartController',
     'checkout' => 'API\checkoutController',
     'switch-store' => 'API\storeController',
+    'discount' => 'API\discountController',
+
 
 
 ]);
 Route::post('/del-alltemp-img' , [
     'uses' => 'API\tempController@delAllTempImg',
 ]);
+Route::post('/reset-temp-img' , [
+    'uses' => 'API\tempController@resetTempImage',
+]);
+
 Route::post('/get-all-filters' , [
     'uses' => 'API\tagController@getAllFilters',
 ]);
 Route::post('/get-this-filter' , [
     'uses' => 'API\tagController@getThisFilter',
+]);
+Route::post('/get-this-discount' , [
+    'uses' => 'API\discountController@getThisDiscount',
 ]);
 
 

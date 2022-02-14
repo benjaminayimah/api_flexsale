@@ -5,7 +5,7 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Product;
-use App\User;
+use App\Store;
 use App\Image;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -29,25 +29,20 @@ class productDetailController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
-        $user_id = JWTAuth::parseToken()->toUser()->id;
-        Storage::deleteDirectory('public/'.$user_id.'/temp2');
-        Storage::deleteDirectory('public/'.$user_id.'/deleted');
-        $product = DB::table('products')->where([
-            'user_id' => $user_id,
-            'id' => $request['id']
-        ])->first();
-        $images = Product::find($product->id)->image;
-        if (!Storage::directories('public/'.$user_id.'/temp2')) {
-            Storage::makeDirectory('public/'.$user_id.'/temp2');
+        try{
+            $product = Store::find($user->current)->getProducts()
+            ->where('id', $request['id'])
+            ->first();
+            $units = Product::find($request['id'])->getUnits;
+        }catch (\Throwable $th) {
+            return response()->json([
+                'title' => 'Error!',
+            ], 500);
         }
-        foreach($images as $image) {
-            Storage::disk('public')->copy($user_id.'/'.$image['name'], $user_id.'/temp2'.'/'.$image['name']);
-        }
-        $categories = User::find($user_id)->getCategories;
+
         return response()->json([
-            'item' => $product,
-            'category' => $categories,
-            'images' => $images
+            'product' => $product,
+            'units' => $units
         ], 200);
     }
 
