@@ -32,13 +32,22 @@ class tagController extends Controller
         // ], 200);
     }
     public function getAllFilters(Request $request) {
+        
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
+        $user = JWTAuth::parseToken()->toUser();
 
         $store_id = JWTAuth::parseToken()->toUser()->current;
-        $filters = DB::table('tag_items')
+        $tags = Store::find($user->current)->getTags;
+        $filters = '';
+        if(count($tags) != 0){
+            $filters = DB::table('tag_items')
             ->join('products', 'tag_items.product_id', '=', 'products.id')
             ->where('tag_items.store_id', '=', $store_id)
-            ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.id', 'products.name', 'products.image', 'products.batch_no')
+            ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.id', 'products.name', 'products.image', 'products.cost', 'products.selling_price', 'products.discount')
             ->get();
+        }
             
         return response()->json([
             'filters' => $filters
@@ -46,6 +55,9 @@ class tagController extends Controller
         
     }
     public function getThisFilter(Request $request) {
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
         $store_id = JWTAuth::parseToken()->toUser()->current;
         $tag_id = $request['id'];
 
@@ -56,7 +68,7 @@ class tagController extends Controller
                 $filters = DB::table('tag_items')
                 ->join('products', 'tag_items.product_id', '=', 'products.id')
                 ->where(['tag_items.store_id' =>  $store_id, 'tag_items.tag_id' => $tag_id ])
-                ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.id', 'products.name', 'products.image', 'products.batch_no')
+                ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.id', 'products.name', 'products.image', 'products.selling_price', 'products.discount', 'products.stock')
                 ->get();
             }
         }catch (\Throwable $th) {
@@ -107,17 +119,16 @@ class tagController extends Controller
                     $tagItem->store_id = $store_id;
                     $tagItem->save();
                 };
-                $tags = DB::table('tags')->where(['store_id' => $store_id, 'name' => $tagg])->first();
                 $filters = DB::table('tag_items')
                     ->join('products', 'tag_items.product_id', '=', 'products.id')
                     ->where('tag_items.store_id', '=', $user->current)
-                    ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.id', 'products.name', 'products.image', 'products.batch_no')
+                    ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.id', 'products.name', 'products.image')
                     ->get();
 
                 return response()->json([
                     'title' => 'Successful!',
                     'status' => 1,
-                    'tag' => $tags,
+                    'tag' => $tag,
                     'message' => '"'.$tagg.'"'.' tag is created.',
                     'id' => $tag_id,
                     'filters' => $filters,
@@ -134,7 +145,7 @@ class tagController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'title' => 'Error!',
-                'message' => 'Could not tag, please check your connection.'
+                'message' => 'Could not add tag, please check your connection.'
             ], 500);
         }
     }

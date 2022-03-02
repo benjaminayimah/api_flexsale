@@ -33,6 +33,10 @@ Route::apiResources([
 Route::post('/del-alltemp-img' , [
     'uses' => 'API\tempController@delAllTempImg',
 ]);
+
+Route::post('/check-unit' , [
+    'uses' => 'API\productController@checkUnit',
+]);
 Route::post('/reset-temp-img' , [
     'uses' => 'API\tempController@resetTempImage',
 ]);

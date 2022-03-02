@@ -35,16 +35,19 @@ class userController extends Controller
     public function store(Request $request)
     {
         $user = JWTAuth::parseToken()->toUser();
+        $filters = '';
         $stores = User::find($user->id)->getStores;
         $tags = Store::find($user->current)->getTags;
         $products = Store::find($user->current)->getProducts;
         $discounts = Store::find($user->current)->getDiscounts;
-
-        $filters = DB::table('tag_items')
+        
+        if(count($products) != 0 && count($tags) != 0) {
+            $filters = DB::table('tag_items')
             ->join('products', 'tag_items.product_id', '=', 'products.id')
             ->where('tag_items.store_id', '=', $user->current)
-            ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.name', 'products.image', 'products.batch_no')
+            ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.name', 'products.image')
             ->get();
+        }
         try {
             if($user->role == 'super' || $user->role == 'admin' || $user->role == 'seller'){
                 return response()->json([

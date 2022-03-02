@@ -72,13 +72,15 @@ class discountController extends Controller
                 'message' => 'Could not tag, please check your connection.'
             ], 500);
         }
+        $products = DB::table('products')->where(['store_id' => $store_id, 'discount' => $id])->get();
+
 
         return response()->json([
             'title' => 'Successful!',
             'status' => 1,
             'message' => '"'.$request['name'].'"'.' discount is created.',
             'discount' => $discount,
-            'id' => $id
+            'products' => $products
         ], 200);
 
     }
@@ -189,6 +191,7 @@ class discountController extends Controller
             }
         }
         $discounts = Store::find($user->current)->getDiscounts;
+        $newProducts = Store::find($user->current)->getProducts;
 
         return response()->json([
             'title' => 'Successful!',
@@ -196,7 +199,7 @@ class discountController extends Controller
             'message' => 'Discount is updated.',
             'discounts' => $discounts,
             'discount' => $discount,
-            'id' => $id
+            'products' => $newProducts
         ], 200);
 
     }
@@ -231,7 +234,8 @@ class discountController extends Controller
         }
         return response()->json([
             'status' => 'Discount is deleted successfully.',
-            'id' => $id
+            'id' => $id,
+            'products' => $products
         ], 200);
     
     }
