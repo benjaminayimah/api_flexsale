@@ -41,7 +41,7 @@ class productController extends Controller
          $user = JWTAuth::parseToken()->toUser();
          $stock = '';
          $type = 0;
-         $price = 0;
+         $price = 0.00;
 
          if($request['prodType'] == '0') {
              $stock = count($request['batch']);
@@ -50,7 +50,7 @@ class productController extends Controller
              $type = 1;
          }
          if($request['sellingPrice'] != '') {
-             $price = $request['sellingPrice'];
+             $price = number_format((float)$request['sellingPrice'], 2, '.', '');
          }
          
         
@@ -154,7 +154,7 @@ class productController extends Controller
          $user = JWTAuth::parseToken()->toUser();
          $stock = '';
          $type = 0;
-         $price = 0;
+         $price = 0.00;
 
          if($request['prodType'] == '0') {
              $stock = count($request['batch']);
@@ -163,7 +163,8 @@ class productController extends Controller
              $type = 1;
          }
          if($request['sellingPrice'] != '') {
-            $price = $request['sellingPrice'];
+            $price = number_format((float)$request['sellingPrice'], 2, '.', '');
+            
          }
          try {
             $product = Product::findOrFail($id);

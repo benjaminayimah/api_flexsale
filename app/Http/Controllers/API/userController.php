@@ -7,7 +7,10 @@ use App\Product;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Image;
+use App\Sale;
+use App\SaleItem;
 use App\Store;
+use Carbon\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -40,7 +43,14 @@ class userController extends Controller
         $tags = Store::find($user->current)->getTags;
         $products = Store::find($user->current)->getProducts;
         $discounts = Store::find($user->current)->getDiscounts;
-        
+        $sales = DB::table('sales')->where([ 
+            ['store_id', '=', $user->current],
+            ['created_at', '>=', Carbon::today()]
+            ])->get();
+        $sales_items = DB::table('sale_items')->where([
+            ['store_id', '=', $user->current],
+            ['created_at', '>=', Carbon::today()]
+            ])->get();
         if(count($products) != 0 && count($tags) != 0) {
             $filters = DB::table('tag_items')
             ->join('products', 'tag_items.product_id', '=', 'products.id')
@@ -57,7 +67,10 @@ class userController extends Controller
                     'tags' => $tags,
                     'filters' => $filters,
                     'products' => $products,
-                    'discounts' => $discounts
+                    'discounts' => $discounts,
+                    'sales' => $sales,
+                    'sales_items' => $sales_items,
+                    'today' => Carbon::today()
                 ], 200);
             }
         } catch (\Throwable $th) {

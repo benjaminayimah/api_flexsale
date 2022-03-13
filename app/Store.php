@@ -18,4 +18,7 @@ class Store extends Model
     public function getDiscounts() {
         return $this->hasMany(Discount::class);
     }
+    public function getSales() {
+        return $this->hasMany(Sale::class);
+    }
 }

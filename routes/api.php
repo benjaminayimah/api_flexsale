@@ -26,10 +26,16 @@ Route::apiResources([
     'checkout' => 'API\checkoutController',
     'switch-store' => 'API\storeController',
     'discount' => 'API\discountController',
+    'perform-sale' => 'API\saleController',
+
 
 
 
 ]);
+Route::post('/fetch-item' , [
+    'uses' => 'API\saleController@fetchItem',
+]);
+
 Route::post('/del-alltemp-img' , [
     'uses' => 'API\tempController@delAllTempImg',
 ]);
