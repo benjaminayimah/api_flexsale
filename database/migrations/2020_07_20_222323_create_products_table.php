@@ -21,20 +21,13 @@ class CreateProductsTable extends Migration
             $table->boolean('prod_type')->default(false);
             $table->string('cost')->nullable();
             $table->string('selling_price')->nullable();
-            //$table->string('profit')->nullable();
-            //$table->string('profit_margin')->nullable();
             $table->string('stock')->nullable();
             $table->string('qty_before')->nullable();
-            //$table->boolean('track_qty')->default(true);
             $table->text('description')->nullable();
             $table->string('supplier')->nullable();
             $table->string('discount')->nullable();
             $table->string('status')->nullable();
             $table->string('added_by');
-
-
-            // $table->boolean('best_seller')->default(false);
-            // $table->boolean('new_arrival')->default(false);
             $table->timestamps();
         });
     }

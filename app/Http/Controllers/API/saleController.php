@@ -35,7 +35,7 @@ class saleController extends Controller
             ->join('products', 'units.product_id', '=', 'products.id')
             ->where(['units.store_id' => $store_id, 'units.batch_no' => $item_id])
             ->select('units.id', 'units.product_id', 'units.batch_no', 'units.active', 'products.name', 'products.image', 'products.selling_price', 'products.discount', 'products.prod_type')
-            ->get();
+            ->first();
             return response()->json([
                 'item' => $item
             ], 200);
@@ -53,7 +53,6 @@ class saleController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
-        
         try {
             $sale = new Sale();
             $sale->store_id = $user->current;

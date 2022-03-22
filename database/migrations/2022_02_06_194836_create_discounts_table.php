@@ -21,7 +21,7 @@ class CreateDiscountsTable extends Migration
             $table->boolean('percentage')->default(true);
             $table->string('start')->nullable();
             $table->string('end')->nullable();
-            $table->boolean('active')->default(true);
+            $table->enum('active', ['0', '1', '2' ])->default('2');
             $table->timestamps();
         });
     }

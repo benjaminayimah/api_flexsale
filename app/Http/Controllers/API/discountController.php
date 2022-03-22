@@ -6,6 +6,7 @@ use App\Discount;
 use App\Store;
 use App\Http\Controllers\Controller;
 use App\Product;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -37,6 +38,8 @@ class discountController extends Controller
         if($request['type'] == '0') {
             $percentage = 0;
         };
+        $end_date = $request['endDate'];
+        $start_date = $request['startDate'];
         try {
             $count = DB::table('discounts')->where(['store_id' => $store_id, 'name' => $request['name']])->count();
             if ($count < 1){
@@ -45,8 +48,8 @@ class discountController extends Controller
                 $discount->name = $request['name'];
                 $discount->value = $request['amount'];
                 $discount->percentage = $percentage;
-                $discount->start = $request['startDate'];
-                $discount->end = $request['endDate'];
+                $discount->start = $start_date;
+                $discount->end = $end_date;
                 $discount->save();
                 $id = $discount->id;
 
@@ -57,7 +60,15 @@ class discountController extends Controller
                         $product->update();
                     }
                 }
-
+                $today = Carbon::today();
+                if($today >= $start_date && $today <= $end_date ) {
+                    $discount->active = '1';
+                }elseif($today > $end_date) {
+                    $discount->active = '0';
+                }else{
+                    $discount->active = '2';
+                }
+                $discount->update();
             }else{
                 return response()->json([
                     'title' => 'Error!',
@@ -80,7 +91,7 @@ class discountController extends Controller
             'status' => 1,
             'message' => '"'.$request['name'].'"'.' discount is created.',
             'discount' => $discount,
-            'products' => $products
+            'products' => $products,
         ], 200);
 
     }
@@ -141,6 +152,9 @@ class discountController extends Controller
         if($request['type'] == '0') {
             $percentage = 0;
         };
+        $start_date = $request['startDate'];
+        $end_date = $request['endDate'];
+        $today = Carbon::today();
         
         try {
             $findOldDiscount = DB::table('discounts')->where(['id' => $id, 'store_id' => $store_id])->first();
@@ -148,8 +162,15 @@ class discountController extends Controller
                 $discount = Discount::findOrFail($id);
                 $discount->value = $request['amount'];
                 $discount->percentage = $percentage;
-                $discount->start = $request['startDate'];
-                $discount->end = $request['endDate'];
+                $discount->start = $start_date;
+                $discount->end = $end_date;
+                if($today >= $start_date && $today <= $end_date ) {
+                    $discount->active = '1';
+                }elseif($today > $end_date) {
+                    $discount->active = '0';
+                }else{
+                    $discount->active = '2';
+                }
                 $discount->update();
                 
             }else{
@@ -159,9 +180,18 @@ class discountController extends Controller
                     $discount->name = $request['name'];
                     $discount->value = $request['amount'];
                     $discount->percentage = $percentage;
-                    $discount->start = $request['startDate'];
-                    $discount->end = $request['endDate'];
+                    $discount->start = $start_date;
+                    $discount->end = $end_date;
+
+                    if($today >= $start_date && $today <= $end_date ) {
+                        $discount->active = '1';
+                    }elseif($today > $end_date) {
+                        $discount->active = '0';
+                    }else{
+                        $discount->active = '2';
+                    }
                     $discount->update();
+
                 }else{
                     return response()->json([
                         'title' => 'Error!',
@@ -170,6 +200,7 @@ class discountController extends Controller
                     ], 200);
                 }
             }
+            
 
         } catch (\Throwable $th) {
             return response()->json([

@@ -101,7 +101,9 @@ return [
     |
     */
 
-    'ttl' => env('JWT_TTL', 60),
+    'ttl' => env('JWT_TTL', null),
+    //'ttl' => env('JWT_TTL', 60),
+
 
     /*
     |--------------------------------------------------------------------------
@@ -121,6 +123,7 @@ return [
     */
 
     'refresh_ttl' => env('JWT_REFRESH_TTL', 20160),
+    //'refresh_ttl' => env('JWT_REFRESH_TTL', 20160),
 
     /*
     |--------------------------------------------------------------------------
@@ -150,7 +153,7 @@ return [
     'required_claims' => [
         'iss',
         'iat',
-        'exp',
+        //'exp',
         'nbf',
         'sub',
         'jti',
