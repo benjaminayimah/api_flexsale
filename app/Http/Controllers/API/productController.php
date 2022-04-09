@@ -9,6 +9,7 @@ use App\Http\Resources\Product as ProductResource;
 use App\Image;
 use App\TagItem;
 use App\Unit;
+use Carbon\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -52,6 +53,7 @@ class productController extends Controller
          if($request['sellingPrice'] != '') {
              $price = number_format((float)$request['sellingPrice'], 2, '.', '');
          }
+         $today = Carbon::today();
          
         
         try {
@@ -77,8 +79,11 @@ class productController extends Controller
                     $unit->product_id = $product->id;
                     $unit->batch_no = $key['batch_no'];
                     $unit->expiry_date = $key['expiry_date'];
+                    if($today->gt($key['expiry_date']) ) {
+                        $unit->active = 0;
+                    }
                     $unit->save();
-
+                    
                  }
              }
             }else {
@@ -88,6 +93,9 @@ class productController extends Controller
                     $unit->product_id = $product->id;
                     $unit->batch_no = $request['batch']['batch_no'];
                     $unit->expiry_date = $request['batch']['expiry_date'];
+                    if($today->gt($request['batch']['expiry_date']) ) {
+                        $unit->active = 0;
+                    }
                     $unit->save();
                 }
                 
@@ -166,6 +174,7 @@ class productController extends Controller
             $price = number_format((float)$request['sellingPrice'], 2, '.', '');
             
          }
+         $today = Carbon::today();
          try {
             $product = Product::findOrFail($id);
             $product->name = $request['name'];
@@ -191,6 +200,9 @@ class productController extends Controller
                     $unit->product_id = $id;
                     $unit->batch_no = $key['batch_no'];
                     $unit->expiry_date = $key['expiry_date'];
+                    if($today->gt($key['expiry_date']) ) {
+                        $unit->active = 0;
+                    }
                     $unit->save();
 
                 }
@@ -207,6 +219,9 @@ class productController extends Controller
                     $newUnit->product_id = $id;
                     $newUnit->batch_no = $request['batch']['batch_no'];
                     $newUnit->expiry_date = $request['batch']['expiry_date'];
+                    if($today->gt($request['batch']['expiry_date'])) {
+                        $newUnit->active = 0;
+                    }
                     $newUnit->save();
                 }
                 

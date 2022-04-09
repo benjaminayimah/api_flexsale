@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::apiResources([
     'user' => 'API\userController',
     'sign-in' => 'API\signinController',
+    'sign-up' => 'API\signupController',
     'temp-upload' => 'API\tempController',
     'temp-editupload' => 'API\tempEditController',
     'products' => 'API\productController',
@@ -27,13 +28,16 @@ Route::apiResources([
     'switch-store' => 'API\storeController',
     'discount' => 'API\discountController',
     'perform-sale' => 'API\saleController',
-
-
-
-
 ]);
 Route::post('/fetch-item' , [
     'uses' => 'API\saleController@fetchItem',
+]);
+Route::post('/get-this-admins' , [
+    'uses' => 'API\userController@fetchAdmins',
+]);
+
+Route::post('/create-admin-user' , [
+    'uses' => 'API\signupController@createAdminUser',
 ]);
 
 Route::post('/del-alltemp-img' , [

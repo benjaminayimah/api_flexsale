@@ -40,9 +40,9 @@ class storeController extends Controller
     {
         $user = JWTAuth::parseToken()->toUser(); 
         $stores = '';
-        if($user->role == 'admin') {
+        if($user->role == '1') {
             $stores = User::find($user->id)->getStores;
-        }else if($user->role == 'seller'){
+        }else if($user->role == '2'){
             $stores = User::find($user->admin_id)->getStores;
         }
         foreach ($stores as $store) {

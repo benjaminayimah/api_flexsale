@@ -23,6 +23,7 @@ class CreateStoresTable extends Migration
             $table->text('address');
             $table->string('city');
             $table->string('region');
+            $table->string('country');
             $table->string('image')->nullable();
             $table->enum('type', ['retail', 'wholesale', 'seller' ])->default('retail');
             $table->boolean('active')->default(true);
