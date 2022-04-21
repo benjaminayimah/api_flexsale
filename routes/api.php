@@ -32,13 +32,20 @@ Route::apiResources([
 Route::post('/fetch-item' , [
     'uses' => 'API\saleController@fetchItem',
 ]);
-Route::post('/get-this-admins' , [
+Route::post('/get-admin-users' , [
     'uses' => 'API\userController@fetchAdmins',
+]);
+Route::post('/get-this-admin-user' , [
+    'uses' => 'API\userController@fetchThisAdmin',
 ]);
 
 Route::post('/create-admin-user' , [
     'uses' => 'API\signupController@createAdminUser',
 ]);
+Route::put('/edit-admin-user/{id}' , [
+    'uses' => 'API\signupController@editAdminUser',
+]);
+
 
 Route::post('/del-alltemp-img' , [
     'uses' => 'API\tempController@delAllTempImg',

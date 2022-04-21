@@ -317,7 +317,5 @@ class productController extends Controller
             return response()->json(['status' => 'An error has occured!'], 500);
         }
         return response()->json(['status' => 'Products deleted successfully.'], 200);
-
-
     }
 }

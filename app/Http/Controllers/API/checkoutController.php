@@ -17,24 +17,24 @@ use Cartalyst\Stripe\Stripe;
 class checkoutController extends Controller
 {
     public function store(Request $request){
-        \Stripe\Stripe::setApiKey('sk_test_V2u8P8DOyoNC15DzIK6ofje000gYl0viIp');
+        // \Stripe\Stripe::setApiKey('sk_test_V2u8P8DOyoNC15DzIK6ofje000gYl0viIp');
 
-        $session = \Stripe\Checkout\Session::create([
-            'payment_method_types' => ['card'],
-            'line_items' => [[
-              'price_data' => [
-                'currency' => 'usd',
-                'product_data' => [
-                  'name' => 'T-shirt',
-                ],
-                'unit_amount' => 2000,
-              ],
-              'quantity' => 1,
-            ]],
-            'mode' => 'payment',
-            'success_url' => 'https://example.com/success?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => 'https://example.com/cancel',
-          ]);
+        // $session = \Stripe\Checkout\Session::create([
+        //     'payment_method_types' => ['card'],
+        //     'line_items' => [[
+        //       'price_data' => [
+        //         'currency' => 'usd',
+        //         'product_data' => [
+        //           'name' => 'T-shirt',
+        //         ],
+        //         'unit_amount' => 2000,
+        //       ],
+        //       'quantity' => 1,
+        //     ]],
+        //     'mode' => 'payment',
+        //     'success_url' => 'https://example.com/success?session_id={CHECKOUT_SESSION_ID}',
+        //     'cancel_url' => 'https://example.com/cancel',
+        //   ]);
 
 
           /*$validator = Validator::make($request->all(), [

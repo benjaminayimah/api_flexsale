@@ -112,6 +112,22 @@ class userController extends Controller
             'admins' => $admins
         ], 200);
     }
+    public function fetchThisAdmin(Request $request) {
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
+        try {
+            $admin = User::findOrFail($request['id']);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'title' => 'Error!',
+                'status' => 'Token error.'
+            ], 500);
+        }
+        return response()->json([
+            'admin' => $admin
+        ], 200);
+    }
 
     /**
      * Display the specified resource.
