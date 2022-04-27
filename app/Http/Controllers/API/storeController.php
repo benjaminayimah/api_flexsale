@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Store;
 use Illuminate\Http\Request;
 use App\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -19,25 +20,7 @@ class storeController extends Controller
     {
         //
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
+    public function switchStore(Request $request) {
         $user = JWTAuth::parseToken()->toUser(); 
         $stores = '';
         if($user->role == '1') {
@@ -47,13 +30,10 @@ class storeController extends Controller
         }
         foreach ($stores as $store) {
             try{
-               
                  if ($store->id == $request['storeID']) {
-
                     $user = User::find($user->id);
                     $user->current = $request['storeID'];
                     $user->update();
-
                     return response()->json([
                         'status' => 1,
                         'message' => 'successful',
@@ -61,46 +41,52 @@ class storeController extends Controller
                 }
            
             }catch(JWTException $e) {
-
+                return response()->json([
+                    'title' => 'Error!'
+                ], 500);
             }
             
-            //$i++;
         }
-
     }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function store(Request $request)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
-        //
+        $user = JWTAuth::parseToken()->toUser();
+        $this->validate($request, [
+            'name' => 'required',
+            'phone1' => 'required',
+            'address' => 'required',
+            'city' => 'required',
+            'region' => 'required',
+            'country' => 'required',  
+        ]);
+        try {
+        $store = Store::findOrFail($user->current);
+        $store->name = $request['name'];
+        $store->phone_1 = $request['phone1'];
+        $store->phone_2 = $request['phone2'];
+        $store->address = $request['address'];
+        $store->city = $request['city'];
+        $store->region = $request['region'];
+        $store->country = $request['country'];
+        $store->update();
+            
+        } catch (\Throwable $th) {
+            return response()->json([
+                'title' => 'Error!'
+            ], 500);
+        }
+        $thisStore = Store::findOrFail($user->current);
+        return response()->json([
+            'message' => 'Details Updated!',
+            'id' => $id,
+            'store' => $thisStore
+        ], 200);
     }
 
     /**

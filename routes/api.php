@@ -25,7 +25,7 @@ Route::apiResources([
     'product-detail' => 'API\productDetailController',
     'add-to-cart' => 'API\cartController',
     'checkout' => 'API\checkoutController',
-    'switch-store' => 'API\storeController',
+    'store' => 'API\storeController',
     'discount' => 'API\discountController',
     'perform-sale' => 'API\saleController',
 ]);
@@ -45,6 +45,14 @@ Route::post('/create-admin-user' , [
 Route::put('/edit-admin-user/{id}' , [
     'uses' => 'API\signupController@editAdminUser',
 ]);
+Route::put('/reset-password/{id}' , [
+    'uses' => 'API\signupController@resetPassword',
+]);
+Route::post('/switch-store' , [
+    'uses' => 'API\storeController@switchStore',
+]);
+
+
 
 
 Route::post('/del-alltemp-img' , [

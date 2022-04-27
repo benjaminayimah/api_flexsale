@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use SebastianBergmann\Environment\Console;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Hash;
 
 
 class signupController extends Controller
@@ -16,7 +17,7 @@ class signupController extends Controller
         $this->validate($request, [
             'email' => 'required|email|unique:users',
             'name' => 'required',
-            'password' => 'required|min:5',
+            'password' => 'required|min:6',
         ]);
         
 
@@ -109,6 +110,7 @@ class signupController extends Controller
                 'email' => 'unique:users'
             ]);
         }
+
         try {
             $newuser->name = $request['name'];
             $newuser->email = $request['email'];
@@ -144,15 +146,52 @@ class signupController extends Controller
         $newadmin = User::findOrFail($id);
         return response()->json([
             'title' => 'Successful!',
-            'message' => 'User is updated.',
+            'message' => 'Updated successfully',
             'admin' => $newadmin
         ], 200);
     }
     public function resetPassword(Request $request, $id) {
-
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
+        $this->validate($request, [
+            'newPassword' => 'required|min:6'
+        ]);
+        if ($id == $user->id) {
+            $this->validate($request, [
+                'password' => 'required'
+            ]);
+            try {
+                $admin = User::findOrFail($user->id);
+                $current_pass = $admin->password;
+                $new_password = $request['newPassword'];
+                if (Hash::check($request['password'], $current_pass)) {
+                    $admin->password = bcrypt($request['newPassword']);
+                    $admin->update();
+                }else {
+                    return response()->json([
+                        'message' => 'The password you entered was incorrect.'
+                    ], 201);
+                }
+            } catch (\Throwable $th) {
+                return response()->json([
+                    'title' => 'Error!'
+                ], 500);
+            }
+            
+        }else{
+            try {
+                $admin = User::findOrFail($id);
+                $admin->password = bcrypt($request['newPassword']);
+                $admin->update();
+            } catch (\Throwable $th) {
+                return response()->json([
+                    'title' => 'Error!'
+                ], 500);
+            }
+        }
         return response()->json([
-            'pass' => $request['password'],
-            'id' => $id
+            'message' => 'Password Updated!'
         ], 200);
 
     }
