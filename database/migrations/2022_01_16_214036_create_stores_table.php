@@ -17,12 +17,12 @@ class CreateStoresTable extends Migration
             $table->id();
             $table->string('user_id');
             $table->string('name');
-            $table->string('classification');
+            $table->string('classification')->nullable();
             $table->string('phone_1');
             $table->string('phone_2')->nullable();
-            $table->text('address');
+            $table->text('address')->nullable();
             $table->string('city');
-            $table->string('region');
+            $table->string('region')->nullable();
             $table->string('country');
             $table->string('image')->nullable();
             $table->enum('type', ['retail', 'wholesale', 'seller' ])->default('retail');

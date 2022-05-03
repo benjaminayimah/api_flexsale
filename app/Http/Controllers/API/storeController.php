@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Store;
 use Illuminate\Http\Request;
 use App\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
@@ -50,13 +52,84 @@ class storeController extends Controller
     }
     public function store(Request $request)
     {
-        //
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
+        $this->validate($request, [
+            'name' => 'required',
+            'phone1' => 'required',
+            'address' => 'required',
+            'city' => 'required',
+            'region' => 'required',
+            'country' => 'required',  
+        ]);
+        try {
+        $store = new Store();
+        $store->user_id = $user->id;
+        $store->name = $request['name'];
+        $store->phone_1 = $request['phone1'];
+        $store->phone_2 = $request['phone2'];
+        $store->address = $request['address'];
+        $store->city = $request['city'];
+        $store->region = $request['region'];
+        $store->country = $request['country'];
+        $store->save();
+        
+        $thisStore = '';
+        $stores = DB::table('stores')->where('user_id', $user->id)->get();
+        if(count($stores) == 1) {
+            $userquery = User::findOrFail($user->id);
+            $userquery->current = $stores[0]->id;
+            $userquery->update();
+            $thisStore = Store::findOrFail($stores[0]->id);
+            $user = $userquery;
+        }else{
+            $thisStore = $store;
+        }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'title' => 'Error!'
+            ], 500);
+        }
+        return response()->json([
+            'message' => 'Store created!',
+            'store' => $thisStore,
+            'user' => $user
+        ], 200);
+    }
+    public function updateStoreImage(Request $request) {
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
+        try {
+
+            $store = '';
+            if (Storage::disk('public')->exists($user->id.'/temp'.'/'.$request['image'])) {
+                Storage::makeDirectory('public/'.$user->id.'/'.$request['store']);
+                Storage::disk('public')->move($user->id.'/temp'.'/'.$request['image'], $user->id.'/'.$request['store'].'/'.$request['image']);
+                $store = Store::findOrFail($request['store']);
+                $store->image = $request['image'];
+                $store->update();
+                Storage::deleteDirectory('public/'.$user->id.'/temp');
+            };
+            
+        } catch (\Throwable $th) {
+            return response()->json([
+                'title' => 'Error!'
+            ], 500);
+        }
+        return response()->json([
+            'message' => 'Store created!',
+            'store' => $store,
+        ], 200);
     }
 
 
     public function update(Request $request, $id)
     {
-        $user = JWTAuth::parseToken()->toUser();
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
         $this->validate($request, [
             'name' => 'required',
             'phone1' => 'required',

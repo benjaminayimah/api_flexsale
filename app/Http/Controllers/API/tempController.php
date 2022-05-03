@@ -37,10 +37,10 @@ class tempController extends Controller
                 $filename = $imgFinaltitle . '_'. rand(1,999999999) . '.'. $fileExt;
                 $file = $request->file('image');
     
-                if (!Storage::directories('public/'.$user->current.'/temp')) {
-                    Storage::makeDirectory('public/'.$user->current.'/temp');
+                if (!Storage::directories('public/'.$user->id.'/temp')) {
+                    Storage::makeDirectory('public/'.$user->id.'/temp');
                 }
-                Storage::disk('public')->put($user->current.'/temp'.'/'.$filename, File::get($file));
+                Storage::disk('public')->put($user->id.'/temp'.'/'.$filename, File::get($file));
                 
                 return response()->json([
                     'img' => $filename,
@@ -54,6 +54,33 @@ class tempController extends Controller
         }
 
     }
+    public function storeTempUpload(Request $request) {
+        try {
+            if($request->file('image')){
+                $user = JWTAuth::parseToken()->toUser();
+                $rawfile = $_FILES['image']["name"];
+                $split = explode(".", $rawfile);
+                $fileExt = end($split);
+                $imgFinaltitle = preg_replace('#[^a-z0-9]#i', '', 'store_'.$user->id);
+                $filename = $imgFinaltitle . '_'. rand(1,999999999) . '.'. $fileExt;
+                $file = $request->file('image');
+    
+                if (!Storage::directories('public/'.$user->id.'/temp')) {
+                    Storage::makeDirectory('public/'.$user->id.'/temp');
+                }
+                Storage::disk('public')->put($user->id.'/temp'.'/'.$filename, File::get($file));
+                
+                return response()->json([
+                    'image' => $filename,
+                ], 200);
+    
+            }
+        } catch (JWTException $e) {
+            return response()->json([
+                'msg' => 'Error!'
+            ], 500);
+        }
+    }
     public function resetTempImage(Request $request)
     {
         if (! $user = JWTAuth::parseToken()->authenticate()) {
@@ -62,9 +89,9 @@ class tempController extends Controller
         $store_id = JWTAuth::parseToken()->toUser()->current;
         
         try {
-            Storage::deleteDirectory('public/'.$store_id.'/temp');
-            Storage::makeDirectory('public/'.$store_id.'/temp');
-            Storage::disk('public')->copy($store_id.'/'.$request['id'], $store_id.'/temp'.'/'.$request['id']);
+            Storage::deleteDirectory('public/'.$user->id.'/temp');
+            Storage::makeDirectory('public/'.$user->id.'/temp');
+            Storage::disk('public')->copy($user->id.'/'.$store_id.'/'.$request['id'], $user->id.'/temp'.'/'.$request['id']);
 
         } catch (JWTException $e) {
             return response()->json([
@@ -76,18 +103,23 @@ class tempController extends Controller
         ], 200);
 
     }
-    public function delAllTempImg() {
-        $user = JWTAuth::parseToken()->toUser();
-        //if (Storage::disk('public')->exists('public/'.$user->current.'/temp')) {
-            Storage::deleteDirectory('public/'.$user->current.'/temp');
-        //}if (Storage::disk('public')->exists('public/'.$user->current.'/temp2')) {
-        //     Storage::deleteDirectory('public/'.$user->current.'/temp2');
-        // //}if (Storage::disk('public')->exists('public/'.$user->current.'/deleted')) {
-        //     Storage::deleteDirectory('public/'.$user->current.'/deleted');
-        //}
-        
+    // public function delProdTemp() {
+    //     if (! $user = JWTAuth::parseToken()->authenticate()) {
+    //         return response()->json(['status' => 'User not found!'], 404);
+    //     }
+    //     Storage::deleteDirectory('public/'.$user->current.'/temp');
+    //     return response()->json([
+    //         'status' => 'success',
+    //     ], 200);
+    // }
+    public function delStoreTemp($id) {
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
+        //delete from folder
+        Storage::deleteDirectory('public/'.$user->id.'/temp');
         return response()->json([
-            'status' => 'success',
+            'status' => 'success'
         ], 200);
     }
 
@@ -101,11 +133,15 @@ class tempController extends Controller
      */
     public function destroy($id)
     {
-        $user = JWTAuth::parseToken()->toUser();
-        //delete from folder
-        if (Storage::disk('public')->exists($user->current.'/temp'.'/'.$id)) {
-            Storage::disk('public')->delete($user->current.'/temp'.'/'.$id);
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
         }
+        //delete from folder
+        Storage::deleteDirectory('public/'.$user->current.'/temp');
+
+        // if (Storage::disk('public')->exists($user->current.'/temp'.'/'.$id)) {
+        //     Storage::disk('public')->delete($user->current.'/temp'.'/'.$id);
+        // }
         return response()->json([
             'status' => 'success'
         ], 200);

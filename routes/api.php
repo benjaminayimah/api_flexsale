@@ -51,13 +51,26 @@ Route::put('/reset-password/{id}' , [
 Route::post('/switch-store' , [
     'uses' => 'API\storeController@switchStore',
 ]);
-
-
-
-
-Route::post('/del-alltemp-img' , [
-    'uses' => 'API\tempController@delAllTempImg',
+Route::post('/store-temp-upload' , [
+    'uses' => 'API\tempController@storeTempUpload',
 ]);
+Route::delete('/del-store-temp/{id}' , [
+    'uses' => 'API\tempController@delStoreTemp',
+]);
+Route::delete('/del-prod-temp/{id}' , [
+    'uses' => 'API\tempController@delProdTemp',
+]);
+Route::post('/submit-store-image' , [
+    'uses' => 'API\storeController@updateStoreImage',
+]);
+
+
+
+
+
+
+
+
 
 Route::post('/check-unit' , [
     'uses' => 'API\productController@checkUnit',

@@ -100,11 +100,13 @@ class productController extends Controller
                 }
                 
             }if($request['tempImage'] != null) {
-                if (Storage::disk('public')->exists($user->current.'/temp'.'/'.$request['tempImage'])) {
-                    Storage::disk('public')->move($user->current.'/temp'.'/'.$request['tempImage'], $user->current.'/'.$request['tempImage']);
+                if (Storage::disk('public')->exists($user->id.'/temp'.'/'.$request['tempImage'])) {
+                    Storage::disk('public')->move($user->id.'/temp'.'/'.$request['tempImage'], $user->id.'/'.$user->current.'/'.$request['tempImage']);
                     $productimg = Product::find($product->id);
                     $productimg->image = $request['tempImage'];
                     $productimg->update();
+                    Storage::deleteDirectory('public/'.$user->id.'/temp');
+
                 };
             }
             $newProduct = DB::table('products')->where('id', $product->id)->first();
@@ -226,11 +228,13 @@ class productController extends Controller
                 }
                 
             }if($request['tempImage'] != null && $product->image != $request['tempImage']) {
-                if (Storage::disk('public')->exists($user->current.'/temp'.'/'.$request['tempImage'])) {
-                    Storage::disk('public')->move($user->current.'/temp'.'/'.$request['tempImage'], $user->current.'/'.$request['tempImage']);
+                if (Storage::disk('public')->exists($user->id.'/temp'.'/'.$request['tempImage'])) {
+                    Storage::disk('public')->move($user->id.'/temp'.'/'.$request['tempImage'], $user->id.'/'.$user->current.'/'.$request['tempImage']);
                     $productimg = Product::find($product->id);
                     $productimg->image = $request['tempImage'];
                     $productimg->update();
+                    Storage::deleteDirectory('public/'.$user->id.'/temp');
+
                 };
 
             }else{
@@ -281,8 +285,8 @@ class productController extends Controller
             }
             $product = Product::findOrFail($id);
             $image = $product->image;
-            if (Storage::disk('public')->exists($user->current.'/'.$image)) {
-                Storage::disk('public')->delete($user->current.'/'.$image);
+            if (Storage::disk('public')->exists($user->id.'/'.$user->current.'/'.$image)) {
+                Storage::disk('public')->delete($user->id.'/'.$user->current.'/'.$image);
             }
             $product->delete();
 
@@ -295,27 +299,27 @@ class productController extends Controller
         ], 200);
     }
 
-    public function bulkdelete(Request $request ) {
-        if (! $user = JWTAuth::parseToken()->authenticate()) {
-            return response()->json(['status' => 'User not found!'], 404);
-        }
-        try{
-            foreach($request[0] as $id) {
-                $images = Product::find($id)->image;
-                foreach($images as $image) {
-                    $img = Image::findOrFail($image->id);
-                    $img->delete();
-                    if (Storage::disk('public')->exists($user->id.'/'.$image->name)) {
-                        Storage::disk('public')->delete($user->id.'/'.$image->name);
-                    }
-                }
-                $product = Product::findOrFail($id);
-                $product->delete();
+    // public function bulkdelete(Request $request ) {
+    //     if (! $user = JWTAuth::parseToken()->authenticate()) {
+    //         return response()->json(['status' => 'User not found!'], 404);
+    //     }
+    //     try{
+    //         foreach($request[0] as $id) {
+    //             $images = Product::find($id)->image;
+    //             foreach($images as $image) {
+    //                 $img = Image::findOrFail($image->id);
+    //                 $img->delete();
+    //                 if (Storage::disk('public')->exists($user->id.'/'.$image->name)) {
+    //                     Storage::disk('public')->delete($user->id.'/'.$image->name);
+    //                 }
+    //             }
+    //             $product = Product::findOrFail($id);
+    //             $product->delete();
 
-            }
-        }catch (\Throwable $th) {
-            return response()->json(['status' => 'An error has occured!'], 500);
-        }
-        return response()->json(['status' => 'Products deleted successfully.'], 200);
-    }
+    //         }
+    //     }catch (\Throwable $th) {
+    //         return response()->json(['status' => 'An error has occured!'], 500);
+    //     }
+    //     return response()->json(['status' => 'Products deleted successfully.'], 200);
+    // }
 }
