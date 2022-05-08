@@ -37,7 +37,9 @@ class userController extends Controller
      */
     public function store(Request $request)
     {
-        $user = JWTAuth::parseToken()->toUser();
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
         $filters = [];
         $stores = [];
         $tags = [];
@@ -45,18 +47,18 @@ class userController extends Controller
         $discounts = [];
         $sales = [];
         $sales_items = [];
-
-        
+        $suppliers = [];
         try {
             if($user->role == 1) {
                 $stores = User::find($user->id)->getStores;
             }elseif ($user->role == 2) {
                 $stores = User::find($user->admin_id)->getStores;
             }
-            if($user->current != null) {
+            if(count($stores) > 0) {
                 $tags = Store::find($user->current)->getTags;
                 $products = Store::find($user->current)->getProducts;
                 $discounts = Store::find($user->current)->getDiscounts;
+                $suppliers = Store::find($user->current)->getSuppliers;
                 $sales = DB::table('sales')->where([ 
                     ['store_id', '=', $user->current],
                     ['created_at', '>=', Carbon::today()]
@@ -85,6 +87,7 @@ class userController extends Controller
                     'discounts' => $discounts,
                     'sales' => $sales,
                     'sales_items' => $sales_items,
+                    'suppliers' => $suppliers,
                     'today' => Carbon::today()
                 ], 200);
             }

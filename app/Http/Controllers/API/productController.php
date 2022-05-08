@@ -39,10 +39,13 @@ class productController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
-         $user = JWTAuth::parseToken()->toUser();
          $stock = '';
          $type = 0;
          $price = 0.00;
+         $userAdminID = $user->id;
+        if($user->role != 1) {
+            $userAdminID = $user->admin_id;
+        }
 
          if($request['prodType'] == '0') {
              $stock = count($request['batch']);
@@ -100,12 +103,12 @@ class productController extends Controller
                 }
                 
             }if($request['tempImage'] != null) {
-                if (Storage::disk('public')->exists($user->id.'/temp'.'/'.$request['tempImage'])) {
-                    Storage::disk('public')->move($user->id.'/temp'.'/'.$request['tempImage'], $user->id.'/'.$user->current.'/'.$request['tempImage']);
+                if (Storage::disk('public')->exists($userAdminID.'/temp'.'/'.$request['tempImage'])) {
+                    Storage::disk('public')->move($userAdminID.'/temp'.'/'.$request['tempImage'], $userAdminID.'/'.$user->current.'/'.$request['tempImage']);
                     $productimg = Product::find($product->id);
                     $productimg->image = $request['tempImage'];
                     $productimg->update();
-                    Storage::deleteDirectory('public/'.$user->id.'/temp');
+                    Storage::deleteDirectory('public/'.$userAdminID.'/temp');
 
                 };
             }
@@ -165,6 +168,10 @@ class productController extends Controller
          $stock = '';
          $type = 0;
          $price = 0.00;
+         $userAdminID = $user->id;
+         if($user->role != 1) {
+             $userAdminID = $user->admin_id;
+         }
 
          if($request['prodType'] == '0') {
              $stock = count($request['batch']);
@@ -228,19 +235,20 @@ class productController extends Controller
                 }
                 
             }if($request['tempImage'] != null && $product->image != $request['tempImage']) {
-                if (Storage::disk('public')->exists($user->id.'/temp'.'/'.$request['tempImage'])) {
-                    Storage::disk('public')->move($user->id.'/temp'.'/'.$request['tempImage'], $user->id.'/'.$user->current.'/'.$request['tempImage']);
+                if (Storage::disk('public')->exists($userAdminID.'/temp'.'/'.$request['tempImage'])) {
+                    Storage::disk('public')->move($userAdminID.'/temp'.'/'.$request['tempImage'], $userAdminID.'/'.$user->current.'/'.$request['tempImage']);
                     $productimg = Product::find($product->id);
                     $productimg->image = $request['tempImage'];
                     $productimg->update();
-                    Storage::deleteDirectory('public/'.$user->id.'/temp');
-
                 };
 
             }else{
                 $productimg = Product::find($product->id);
                 $productimg->image = $request['tempImage'];
                 $productimg->update();
+            }
+            if(Storage::disk('public')->exists($userAdminID.'/temp')) {
+                Storage::deleteDirectory('public/'.$userAdminID.'/temp');
             }
             $newProduct = DB::table('products')->where('id', $product->id)->first();
             $units = Product::find($id)->getUnits;
@@ -268,7 +276,10 @@ class productController extends Controller
             return response()->json(['status' => 'User not found!'], 404);
         }
         try {
-
+            $userAdminID = $user->id;
+            if($user->role != 1) {
+                $userAdminID = $user->admin_id;
+            }
             $tagItems = DB::table('tag_items')->where('product_id', $id)->get();
             if(count($tagItems) > 0) {
                 foreach($tagItems as $item) {
@@ -285,8 +296,8 @@ class productController extends Controller
             }
             $product = Product::findOrFail($id);
             $image = $product->image;
-            if (Storage::disk('public')->exists($user->id.'/'.$user->current.'/'.$image)) {
-                Storage::disk('public')->delete($user->id.'/'.$user->current.'/'.$image);
+            if (Storage::disk('public')->exists($userAdminID.'/'.$user->current.'/'.$image)) {
+                Storage::disk('public')->delete($userAdminID.'/'.$user->current.'/'.$image);
             }
             $product->delete();
 

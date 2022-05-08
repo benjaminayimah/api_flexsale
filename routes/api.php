@@ -28,6 +28,8 @@ Route::apiResources([
     'store' => 'API\storeController',
     'discount' => 'API\discountController',
     'perform-sale' => 'API\saleController',
+    'suppliers' => 'API\supplierController',
+
 ]);
 Route::post('/fetch-item' , [
     'uses' => 'API\saleController@fetchItem',
@@ -61,6 +63,9 @@ Route::delete('/del-prod-temp/{id}' , [
     'uses' => 'API\tempController@delProdTemp',
 ]);
 Route::post('/submit-store-image' , [
+    'uses' => 'API\storeController@submitStImage',
+]);
+Route::post('/update-store-image' , [
     'uses' => 'API\storeController@updateStoreImage',
 ]);
 

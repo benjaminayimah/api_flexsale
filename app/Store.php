@@ -21,4 +21,7 @@ class Store extends Model
     public function getSales() {
         return $this->hasMany(Sale::class);
     }
+    public function getSuppliers() {
+        return $this->hasMany(Supplier::class);
+    }
 }

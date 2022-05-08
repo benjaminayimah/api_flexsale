@@ -97,21 +97,34 @@ class storeController extends Controller
             'user' => $user
         ], 200);
     }
-    public function updateStoreImage(Request $request) {
+    public function submitStImage(Request $request) {
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
         try {
-
             $store = '';
-            if (Storage::disk('public')->exists($user->id.'/temp'.'/'.$request['image'])) {
-                Storage::makeDirectory('public/'.$user->id.'/'.$request['store']);
-                Storage::disk('public')->move($user->id.'/temp'.'/'.$request['image'], $user->id.'/'.$request['store'].'/'.$request['image']);
-                $store = Store::findOrFail($request['store']);
+            $storeID = $request['store'];
+            if($storeID == '') {
+                $storeID = $user->current;
+            }
+            $userAdminID = $user->id;
+            if($user->role != 1) {
+                $userAdminID = $user->admin_id;
+            }
+            if (Storage::disk('public')->exists($userAdminID.'/temp'.'/'.$request['image'])) {
+                Storage::makeDirectory('public/'.$userAdminID.'/'.$storeID);
+                
+                Storage::disk('public')->move($userAdminID.'/temp'.'/'.$request['image'], $userAdminID.'/'.$storeID.'/'.$request['image']);
+                $store = Store::findOrFail($storeID);
                 $store->image = $request['image'];
                 $store->update();
-                Storage::deleteDirectory('public/'.$user->id.'/temp');
+                Storage::deleteDirectory('public/'.$userAdminID.'/temp');
             };
+            
+            return response()->json([
+                'message' => 'Store created!',
+                'store' => $store
+            ], 200);
             
         } catch (\Throwable $th) {
             return response()->json([
@@ -122,6 +135,42 @@ class storeController extends Controller
             'message' => 'Store created!',
             'store' => $store,
         ], 200);
+    }
+    public function updateStoreImage(Request $request) {
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
+        try {
+            $userAdminID = $user->id;
+            if($user->role != 1) {
+                $userAdminID = $user->admin_id;
+            }
+            if($request['image'] == null) { 
+                if (Storage::disk('public')->exists($userAdminID.'/'.$user->current.'/'.$request['image'])) {
+                    Storage::deleteDirectory('public/'. $userAdminID.'/'.$user->current.'/'.$request['image']);
+                    $store = Store::find($user->current);
+                    $store->image = null;
+                    $store->update();
+                };
+            }else{
+                if (Storage::disk('public')->exists($userAdminID.'/temp'.'/'.$request['image'])) {
+                    Storage::disk('public')->move($userAdminID.'/temp'.'/'.$request['image'], $userAdminID.'/'.$user->current.'/'.$request['image']);
+                    $store = Store::find($user->current);
+                    $store->image = $request['image'];
+                    $store->update();
+                };
+            }
+            Storage::deleteDirectory('public/'.$userAdminID.'/temp');
+        } catch (\Throwable $th) {
+            return response()->json([
+                'title' => 'Error!'
+            ], 500);
+        }
+        return response()->json([
+            'message' => 'Store image is updated',
+            'store' => $store
+        ], 200);
+        
     }
 
 

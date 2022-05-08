@@ -26,8 +26,15 @@ class tempController extends Controller
 
     public function store(Request $request)
     {
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
         
         try {
+            $userAdminID = $user->id;
+            if($user->role != 1) {
+                $userAdminID = $user->admin_id;
+            }
             if($request->file('image')){
                 $user = JWTAuth::parseToken()->toUser();
                 $rawfile = $_FILES['image']["name"];
@@ -37,10 +44,10 @@ class tempController extends Controller
                 $filename = $imgFinaltitle . '_'. rand(1,999999999) . '.'. $fileExt;
                 $file = $request->file('image');
     
-                if (!Storage::directories('public/'.$user->id.'/temp')) {
-                    Storage::makeDirectory('public/'.$user->id.'/temp');
+                if (!Storage::directories('public/'.$userAdminID.'/temp')) {
+                    Storage::makeDirectory('public/'.$userAdminID.'/temp');
                 }
-                Storage::disk('public')->put($user->id.'/temp'.'/'.$filename, File::get($file));
+                Storage::disk('public')->put($userAdminID.'/temp'.'/'.$filename, File::get($file));
                 
                 return response()->json([
                     'img' => $filename,
@@ -55,20 +62,27 @@ class tempController extends Controller
 
     }
     public function storeTempUpload(Request $request) {
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
         try {
+            $userAdminID = $user->id;
+            if($user->role != 1) {
+                $userAdminID = $user->admin_id;
+            }
             if($request->file('image')){
                 $user = JWTAuth::parseToken()->toUser();
                 $rawfile = $_FILES['image']["name"];
                 $split = explode(".", $rawfile);
                 $fileExt = end($split);
-                $imgFinaltitle = preg_replace('#[^a-z0-9]#i', '', 'store_'.$user->id);
+                $imgFinaltitle = preg_replace('#[^a-z0-9]#i', '', 'store_'.$userAdminID);
                 $filename = $imgFinaltitle . '_'. rand(1,999999999) . '.'. $fileExt;
                 $file = $request->file('image');
     
-                if (!Storage::directories('public/'.$user->id.'/temp')) {
-                    Storage::makeDirectory('public/'.$user->id.'/temp');
+                if (!Storage::directories('public/'.$userAdminID.'/temp')) {
+                    Storage::makeDirectory('public/'.$userAdminID.'/temp');
                 }
-                Storage::disk('public')->put($user->id.'/temp'.'/'.$filename, File::get($file));
+                Storage::disk('public')->put($userAdminID.'/temp'.'/'.$filename, File::get($file));
                 
                 return response()->json([
                     'image' => $filename,
@@ -87,11 +101,15 @@ class tempController extends Controller
             return response()->json(['status' => 'User not found!'], 404);
         }
         $store_id = JWTAuth::parseToken()->toUser()->current;
+        $userAdminID = $user->id;
+        if($user->role != 1) {
+            $userAdminID = $user->admin_id;
+        }
         
         try {
-            Storage::deleteDirectory('public/'.$user->id.'/temp');
-            Storage::makeDirectory('public/'.$user->id.'/temp');
-            Storage::disk('public')->copy($user->id.'/'.$store_id.'/'.$request['id'], $user->id.'/temp'.'/'.$request['id']);
+            Storage::deleteDirectory('public/'.$userAdminID.'/temp');
+            Storage::makeDirectory('public/'.$userAdminID.'/temp');
+            Storage::disk('public')->copy($userAdminID.'/'.$store_id.'/'.$request['id'], $userAdminID.'/temp'.'/'.$request['id']);
 
         } catch (JWTException $e) {
             return response()->json([
@@ -117,7 +135,11 @@ class tempController extends Controller
             return response()->json(['status' => 'User not found!'], 404);
         }
         //delete from folder
-        Storage::deleteDirectory('public/'.$user->id.'/temp');
+        $userAdminID = $user->id;
+        if($user->role != 1) {
+            $userAdminID = $user->admin_id;
+        }
+        Storage::deleteDirectory('public/'.$userAdminID.'/temp');
         return response()->json([
             'status' => 'success'
         ], 200);
