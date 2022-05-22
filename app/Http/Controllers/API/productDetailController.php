@@ -25,7 +25,6 @@ class productDetailController extends Controller
 
     public function store(Request $request)
     {
-
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }

@@ -68,6 +68,12 @@ Route::post('/submit-store-image' , [
 Route::post('/update-store-image' , [
     'uses' => 'API\storeController@updateStoreImage',
 ]);
+Route::post('/supplier-this-supplier' , [
+    'uses' => 'API\supplierController@fetchThisSupplier',
+]);
+Route::post('/filter-sale-record' , [
+    'uses' => 'API\saleController@filterSaleRecord',
+]);
 
 
 

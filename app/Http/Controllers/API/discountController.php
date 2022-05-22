@@ -208,11 +208,14 @@ class discountController extends Controller
                 'message' => 'Could not tag, please check your connection.'
             ], 500);
         }
-        $products = DB::table('products')->where(['store_id' => $store_id, 'discount' => $id])->get();
+        // $products1 = DB::table('products')->where(['store_id' => $store_id, 'discount' => $id])->get();
+        $products = Store::find($store_id)->getProducts()
+        ->where('discount', $id)
+        ->get();
         foreach($products as $x) {
-            $product = Product::findOrFail($x->id);
-            $product->discount = null;
-            $product->update();
+            // $product = Product::findOrFail($x->id);
+            $x->discount = null;
+            $x->update();
         }
         if(count($request['products']) > 0){
             foreach($request['products'] as $product) {
@@ -249,12 +252,13 @@ class discountController extends Controller
         $store_id = JWTAuth::parseToken()->toUser()->current;
         
         try{
-            $products = DB::table('products')->where(['store_id' => $store_id, 'discount' => $id])->get();
+            $products = Store::find($store_id)->getProducts()
+            ->where('discount', $id)
+            ->get();
             if(count($products) > 0) {
                 foreach($products as $x) {
-                    $product = Product::findOrFail($x->id);
-                    $product->discount = null;
-                    $product->update();
+                    $x->discount = null;
+                    $x->update();
                 }
             }
             $discount = Discount::findOrFail($id);

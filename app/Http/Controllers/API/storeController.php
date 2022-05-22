@@ -113,7 +113,6 @@ class storeController extends Controller
             }
             if (Storage::disk('public')->exists($userAdminID.'/temp'.'/'.$request['image'])) {
                 Storage::makeDirectory('public/'.$userAdminID.'/'.$storeID);
-                
                 Storage::disk('public')->move($userAdminID.'/temp'.'/'.$request['image'], $userAdminID.'/'.$storeID.'/'.$request['image']);
                 $store = Store::findOrFail($storeID);
                 $store->image = $request['image'];
@@ -146,18 +145,23 @@ class storeController extends Controller
                 $userAdminID = $user->admin_id;
             }
             if($request['image'] == null) { 
-                if (Storage::disk('public')->exists($userAdminID.'/'.$user->current.'/'.$request['image'])) {
-                    Storage::deleteDirectory('public/'. $userAdminID.'/'.$user->current.'/'.$request['image']);
-                    $store = Store::find($user->current);
-                    $store->image = null;
-                    $store->update();
-                };
+                $store = Store::find($user->current);
+                $oldImage = $store->image;
+                if(!$oldImage == null) {
+                    if(Storage::disk('public')->exists($userAdminID.'/'.$user->current.'/'.$oldImage)) {
+                        Storage::disk('public')->delete($userAdminID.'/'.$user->current.'/'.$oldImage);
+                    }
+                }
+                $store->image = null;
+                $store->update();
             }else{
                 if (Storage::disk('public')->exists($userAdminID.'/temp'.'/'.$request['image'])) {
                     Storage::disk('public')->move($userAdminID.'/temp'.'/'.$request['image'], $userAdminID.'/'.$user->current.'/'.$request['image']);
                     $store = Store::find($user->current);
+                    $oldImage = $store->image;
                     $store->image = $request['image'];
                     $store->update();
+                    Storage::disk('public')->delete($userAdminID.'/'.$user->current.'/'.$oldImage);
                 };
             }
             Storage::deleteDirectory('public/'.$userAdminID.'/temp');

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Product;
 use App\Http\Resources\Product as ProductResource;
 use App\Image;
+use App\Store;
 use App\TagItem;
 use App\Unit;
 use Carbon\Carbon;
@@ -39,23 +40,26 @@ class productController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
-         $stock = '';
-         $type = 0;
-         $price = 0.00;
-         $userAdminID = $user->id;
+        $stock = '';
+        $type = 0;
+        $price = 0.00;
+        $cost = 0.00;
+        $userAdminID = $user->id;
         if($user->role != 1) {
             $userAdminID = $user->admin_id;
         }
-
-         if($request['prodType'] == '0') {
-             $stock = count($request['batch']);
-         }else{
-             $stock = $request['batch']['stock'];
-             $type = 1;
-         }
-         if($request['sellingPrice'] != '') {
-             $price = number_format((float)$request['sellingPrice'], 2, '.', '');
-         }
+        if($request['prodType'] == '0') {
+            $stock = count($request['batch']);
+        }else{
+            $stock = $request['batch']['stock'];
+            $type = 1;
+        }
+        if($request['sellingPrice'] != '') {
+            $price = number_format((float)$request['sellingPrice'], 2, '.', '');
+        }
+        if($request['cost'] != '') {
+            $cost = number_format((float)$request['cost'], 2, '.', '');
+        }
          $today = Carbon::today();
          
         
@@ -65,11 +69,11 @@ class productController extends Controller
             $product->name = $request['name'];
             $product->image = null;
             $product->prod_type = $type;
-            $product->cost = $request['cost'];
+            $product->cost = $cost;
             $product->selling_price = $price;
             $product->stock = $stock;
             $product->description = $request['description'];
-            $product->supplier = $request['supplier'];
+            $product->supplier_id = $request['supplier'];
             $product->discount = null;
             $product->added_by = $user->name;
             $product->save();
@@ -163,47 +167,49 @@ class productController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
+        $user = JWTAuth::parseToken()->toUser();
+        $stock = '';
+        $type = 0;
+        $price = 0.00;
+        $cost = 0.00;
+        $userAdminID = $user->id;
+        if($user->role != 1) {
+            $userAdminID = $user->admin_id;
+        }
 
-         $user = JWTAuth::parseToken()->toUser();
-         $stock = '';
-         $type = 0;
-         $price = 0.00;
-         $userAdminID = $user->id;
-         if($user->role != 1) {
-             $userAdminID = $user->admin_id;
-         }
-
-         if($request['prodType'] == '0') {
-             $stock = count($request['batch']);
-         }else{
-             $stock = $request['batch']['stock'];
-             $type = 1;
-         }
-         if($request['sellingPrice'] != '') {
+        if($request['prodType'] == '0') {
+            $stock = count($request['batch']);
+        }else{
+            $stock = $request['batch']['stock'];
+            $type = 1;
+        }
+        if($request['sellingPrice'] != '') {
             $price = number_format((float)$request['sellingPrice'], 2, '.', '');
-            
-         }
+        }
+        if($request['cost'] != '') {
+            $cost = number_format((float)$request['cost'], 2, '.', '');
+        }
          $today = Carbon::today();
          try {
             $product = Product::findOrFail($id);
             $product->name = $request['name'];
             $product->prod_type = $type;
-            $product->cost = $request['cost'];
+            $product->cost = $cost;
             $product->selling_price = $price;
             $product->stock = $stock;
             $product->description = $request['description'];
-            $product->supplier = $request['supplier'];
-            // $product->discount = null;
+            $product->supplier_id = $request['supplier'];
             $product->update();
 
             if($request['prodType'] == '0') {
              if(count($request['batch']) > 0) {
-                    $oldUnit = DB::table('units')->where('product_id', $id)->get();
+                    // $oldUnit = DB::table('units')->where('product_id', $id)->get();
+                    $oldUnit = Product::find($id)->getUnits;
                     foreach ($oldUnit as $key) {
-                        $old_unit = Unit::find($key->id);
-                        $old_unit->delete();
+                        // $old_unit = Unit::find($key->id);
+                        $key->delete();
                     }
-                 foreach ($request['batch'] as $key) {
+                    foreach ($request['batch'] as $key) {
                     $unit = new Unit();
                     $unit->store_id = $user->current;
                     $unit->product_id = $id;
@@ -218,10 +224,9 @@ class productController extends Controller
              }
             }else {
                 if ($request['batch']['batch_no']) {
-                    $Oldunit = DB::table('units')->where('product_id', $id)->get();
+                    $Oldunit = Product::find($id)->getUnits;
                     foreach ($Oldunit as $key) {
-                        $old_unit = Unit::find($key->id);
-                        $old_unit->delete();
+                        $key->delete();
                     }
                     $newUnit = new Unit();
                     $newUnit->store_id = $user->current;
@@ -236,12 +241,22 @@ class productController extends Controller
                 
             }if($request['tempImage'] != null && $product->image != $request['tempImage']) {
                 if (Storage::disk('public')->exists($userAdminID.'/temp'.'/'.$request['tempImage'])) {
+                    $old_pic = $product->image;
                     Storage::disk('public')->move($userAdminID.'/temp'.'/'.$request['tempImage'], $userAdminID.'/'.$user->current.'/'.$request['tempImage']);
-                    $productimg = Product::find($product->id);
-                    $productimg->image = $request['tempImage'];
-                    $productimg->update();
+                    $product->image = $request['tempImage'];
+                    $product->update();
+                    if(Storage::disk('public')->exists($userAdminID.'/'.$user->current.'/'.$old_pic)) {
+                        Storage::disk('public')->delete($userAdminID.'/'.$user->current.'/'.$old_pic);
+                    }
                 };
-
+            }elseif ($request['tempImage'] == '') {
+                if(!$product->image == null) {
+                    if(Storage::disk('public')->exists($userAdminID.'/'.$user->current.'/'.$product->image)) {
+                        Storage::disk('public')->delete($userAdminID.'/'.$user->current.'/'.$product->image);
+                    }
+                }
+                $product->image = null;
+                $product->update();
             }else{
                 $productimg = Product::find($product->id);
                 $productimg->image = $request['tempImage'];
@@ -280,18 +295,22 @@ class productController extends Controller
             if($user->role != 1) {
                 $userAdminID = $user->admin_id;
             }
-            $tagItems = DB::table('tag_items')->where('product_id', $id)->get();
+            // $tagItems1 = DB::table('tag_items')->where('product_id', $id)->get();
+            $tagItems = Store::find($user->current)->getFilters()
+            ->where('product_id', $id)
+            ->get();
             if(count($tagItems) > 0) {
                 foreach($tagItems as $item) {
-                    $tagItem = TagItem::findOrFail($item->id);
-                    $tagItem->delete();
+                    // $tagItem = TagItem::findOrFail($item->id);
+                    $item->delete();
                 }
             }
-            $units = DB::table('units')->where('product_id', $id)->get();
+            // $units = DB::table('units')->where('product_id', $id)->get();
+            $units = Product::find($id)->getUnits;
             if(count($units) > 0) {
                 foreach($units as $unit) {
-                    $unitItem = Unit::findOrFail($unit->id);
-                    $unitItem->delete();
+                    // $unitItem = Unit::findOrFail($unit->id);
+                    $unit->delete();
                 }
             }
             $product = Product::findOrFail($id);

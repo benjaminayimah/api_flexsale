@@ -186,13 +186,16 @@ class tagController extends Controller
         try {
             $newTag = trim($request['tag']);
             $CheckTag = DB::table('tags')->where(['store_id' => $store_id, 'id' => $id])->first();
-            $findOldTags = DB::table('tag_items')->where(['tag_id' => $id, 'store_id' => $store_id])->get();
+            // $findOldTags = DB::table('tag_items')->where(['tag_id' => $id, 'store_id' => $store_id])->get();
+            $findOldTags = Store::find($store_id)->getFilters()
+            ->where('tag_id', $id)
+            ->get();
 
             if($CheckTag->name == $newTag) {
                 //created
                 foreach ($findOldTags as $old) {
-                    $tagI = TagItem::findOrFail($old->id);
-                    $tagI->delete();
+                    // $tagI = TagItem::findOrFail($old->id);
+                    $old->delete();
                 }
                 foreach($request['products'] as $product) {
                     $tagItem = new TagItem();
@@ -214,8 +217,8 @@ class tagController extends Controller
 
                     
                     foreach ($findOldTags as $old) {
-                        $tagI = TagItem::findOrFail($old->id);
-                        $tagI->delete();
+                        // $tagI = TagItem::findOrFail($old->id);
+                        $old->delete();
                     }
                     foreach($request['products'] as $product) {
                         $tagItem = new TagItem();
@@ -267,11 +270,12 @@ class tagController extends Controller
         $store_id = JWTAuth::parseToken()->toUser()->current;
         
         try{
-            $tagItems = DB::table('tag_items')->where(['tag_id' => $id, 'store_id' => $store_id])->get();
+            $tagItems = Store::find($store_id)->getFilters()
+            ->where('tag_id', $id)
+            ->get();
             if(count($tagItems) > 0) {
                 foreach($tagItems as $item) {
-                    $tagItem = TagItem::findOrFail($item->id);
-                    $tagItem->delete();
+                    $item->delete();
                 }
                 $tag = Tag::findOrFail($id);
                 $tag->delete();

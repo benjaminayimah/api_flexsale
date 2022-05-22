@@ -42,15 +42,15 @@ class DiscountChecker extends Command
         $today = Carbon::today();
         $discounts = Discount::all();
         foreach ($discounts as $key) {
-            $discount = Discount::find($key->id);
+            // $discount = Discount::find($key->id);
             if($today >= $key->start && $today <= $key->end ) {
-                $discount->active = '1';
+                $key->active = '1';
             }elseif($today > $key->end) {
-                $discount->active = '0';
+                $key->active = '0';
             }else{
-                $discount->active = '2';
+                $key->active = '2';
             }
-            $discount->update();
+            $key->update();
         }
         $this->info('Discount Expiration Checked');
     }

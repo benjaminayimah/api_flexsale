@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Product;
+use App\Store;
 use App\Supplier;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -78,6 +80,27 @@ class supplierController extends Controller
                 'supplier' => $supplier
             ], 200);
     }
+    public function fetchThisSupplier(Request $request) {
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
+        try {
+            $suppliers = Store::find($user->current)->getSuppliers()
+            ->where('id', $request['id'])
+            ->first();
+            $products = Store::find($user->current)->getProducts()
+            ->where('supplier_id', $request['id'])
+            ->get();
+        } catch (\Throwable $th) {
+            return response()->json([
+                'title' => 'Error!'
+            ], 500);
+        }
+        return response()->json([
+            'supplier' => $suppliers,
+            'products' => $products
+        ], 200);
+    }
 
     /**
      * Remove the specified resource from storage.
@@ -93,6 +116,15 @@ class supplierController extends Controller
         try{
             $supplier = Supplier::findOrFail($id);
             $supplier->delete();
+            $products = Store::find($user->current)->getProducts()
+            ->where('supplier_id', $id)
+            ->get();
+            if(count($products) > 0) {
+                foreach ($products as $key) {
+                    $key->supplier_id = null;
+                    $key->update();
+                }
+            }
         }catch (\Throwable $th) {
             return response()->json(['status' => 'An error has occured!'], 500);
         }

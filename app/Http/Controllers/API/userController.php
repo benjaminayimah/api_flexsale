@@ -59,13 +59,13 @@ class userController extends Controller
                 $products = Store::find($user->current)->getProducts;
                 $discounts = Store::find($user->current)->getDiscounts;
                 $suppliers = Store::find($user->current)->getSuppliers;
-                $sales = DB::table('sales')->where([ 
-                    ['store_id', '=', $user->current],
-                    ['created_at', '>=', Carbon::today()]
+                $sales = Store::find($user->current)->getSales()
+                    ->where([
+                    ['created_at', '>=', Carbon::today()->toDateTimeString()]
                     ])->get();
                 $sales_items = DB::table('sale_items')->where([
                     ['store_id', '=', $user->current],
-                    ['created_at', '>=', Carbon::today()]
+                    ['created_at', '>=', Carbon::today()->toDateTimeString()]
                     ])->get();
                 if(count($products) != 0 && count($tags) != 0) {
                     $filters = DB::table('tag_items')

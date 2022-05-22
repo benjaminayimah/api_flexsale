@@ -130,10 +130,8 @@ class categoryController extends Controller
         }
         try{
             foreach($request[0] as $id) {
-
                 $category = Category::findOrFail($id);
                 $category->delete();
-
             }
         }catch (\Throwable $th) {
             return response()->json(['status' => 'An error has occured!'], 500);

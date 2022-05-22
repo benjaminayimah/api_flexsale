@@ -24,7 +24,7 @@ class CreateProductsTable extends Migration
             $table->string('stock')->nullable();
             $table->string('qty_before')->nullable();
             $table->text('description')->nullable();
-            $table->string('supplier')->nullable();
+            $table->string('supplier_id')->nullable();
             $table->string('discount')->nullable();
             $table->string('status')->nullable();
             $table->string('added_by');

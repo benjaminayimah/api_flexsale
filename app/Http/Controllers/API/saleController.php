@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Product;
 use App\Sale;
 use App\SaleItem;
+use App\Store;
 use App\Unit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -113,6 +114,55 @@ class saleController extends Controller
             'sale_items' => $sales_items,
             'items' => $request['items'],
             'product' => $product
+        ], 200);
+    }
+    public function filterSaleRecord(Request $request) {
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
+        try {
+            $title = $request['title'];
+            $type = $request['type'];
+            $interval = $request['interval'];
+            $result = array();
+            $start_date = '';
+            $end_date = '';
+            if($type == 0) {
+                //today
+                $end_date = Carbon::today()->toDateTimeString();
+                $result = Store::find($user->current)->getSales()
+                    ->where([
+                    ['created_at', '>=', $end_date]
+                ])->get();
+            }else{
+                //to today interval
+                $start_date = Carbon::today()->subDays($interval)->toDateTimeString();
+                $end_date = Carbon::today()->toDateTimeString();
+                //inbetween range
+                if($type == 3) {
+                    $start_date = \Carbon\Carbon::parse($request['start'])->toDateTimeString();;
+                    $end_date = \Carbon\Carbon::parse($request['end'])->addDays(1)->toDateTimeString();;
+                }
+                $result = Store::find($user->current)->getSales()
+                    ->whereBetween('created_at',[
+                    $start_date, $end_date
+                ])->get();
+                $end_date = \Carbon\Carbon::parse($end_date)->subDays(1)->toDateTimeString();
+                if($start_date == $end_date) {
+                    $start_date = '';
+                }
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'title' => 'Error!',
+            ], 500);
+        }
+        return response()->json([
+            'result' => $result,
+            'title' => $title,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+            'type' => $type
         ], 200);
     }
 
