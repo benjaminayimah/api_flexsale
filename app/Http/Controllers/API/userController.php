@@ -3,16 +3,11 @@
 namespace App\Http\Controllers\API;
 
 use App\User;
-use App\Product;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Image;
-use App\Sale;
-use App\SaleItem;
 use App\Store;
 use Carbon\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
 
@@ -56,7 +51,9 @@ class userController extends Controller
             }
             if(count($stores) > 0) {
                 $tags = Store::find($user->current)->getTags;
-                $products = Store::find($user->current)->getProducts;
+                $products = Store::find($user->current)->getProducts()
+                ->where('deleted', false)
+                ->get();
                 $discounts = Store::find($user->current)->getDiscounts;
                 $suppliers = Store::find($user->current)->getSuppliers;
                 $sales = Store::find($user->current)->getSales()
@@ -74,6 +71,17 @@ class userController extends Controller
                     ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.name', 'products.image')
                     ->get();
                 }
+                $start_date = Carbon::today()->subDays(1)->toDateTimeString();
+                $end_date = Carbon::today()->toDateTimeString();
+                $yesterday_sale = Store::find($user->current)->getSales()
+                    ->whereBetween('created_at',[
+                    $start_date, $end_date
+                ])->get();
+                $yesterday_total = 0;
+                foreach($yesterday_sale as $key=>$value){
+                if(isset($value->total_paid))   
+                    $yesterday_total += $value->total_paid;
+                }                
             }
             
             if($user->role == '0' || $user->role == '1' || $user->role == '2'){
@@ -88,7 +96,8 @@ class userController extends Controller
                     'sales' => $sales,
                     'sales_items' => $sales_items,
                     'suppliers' => $suppliers,
-                    'today' => Carbon::today()
+                    'today' => Carbon::today(),
+                    'yesterday_sale' => $yesterday_total
                 ], 200);
             }
         } catch (\Throwable $th) {

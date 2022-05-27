@@ -89,8 +89,10 @@ class supplierController extends Controller
             ->where('id', $request['id'])
             ->first();
             $products = Store::find($user->current)->getProducts()
-            ->where('supplier_id', $request['id'])
-            ->get();
+            ->where([
+                ['deleted', '=', false ],
+                ['supplier_id', '=', $request['id']]
+            ])->get();
         } catch (\Throwable $th) {
             return response()->json([
                 'title' => 'Error!'
@@ -117,8 +119,10 @@ class supplierController extends Controller
             $supplier = Supplier::findOrFail($id);
             $supplier->delete();
             $products = Store::find($user->current)->getProducts()
-            ->where('supplier_id', $id)
-            ->get();
+            ->where([
+                ['deleted', '=', false ],
+                ['supplier_id', '=', $id]
+            ])->get();
             if(count($products) > 0) {
                 foreach ($products as $key) {
                     $key->supplier_id = null;

@@ -28,6 +28,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('discount:check')->daily();
         $schedule->command('stock:alert')->hourly();
+        $schedule->command('delete:trash')->daily();
+
     }
 
     /**

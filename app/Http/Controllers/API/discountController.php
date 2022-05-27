@@ -210,8 +210,10 @@ class discountController extends Controller
         }
         // $products1 = DB::table('products')->where(['store_id' => $store_id, 'discount' => $id])->get();
         $products = Store::find($store_id)->getProducts()
-        ->where('discount', $id)
-        ->get();
+        ->where([
+            ['deleted', '=', false ],
+            ['discount', '=', $id]
+            ])->get();
         foreach($products as $x) {
             // $product = Product::findOrFail($x->id);
             $x->discount = null;
@@ -225,8 +227,9 @@ class discountController extends Controller
             }
         }
         $discounts = Store::find($user->current)->getDiscounts;
-        $newProducts = Store::find($user->current)->getProducts;
-
+        $newProducts = Store::find($user->current)->getProducts()
+        ->where('deleted', false)
+        ->get();
         return response()->json([
             'title' => 'Successful!',
             'status' => 1,
@@ -253,8 +256,10 @@ class discountController extends Controller
         
         try{
             $products = Store::find($store_id)->getProducts()
-            ->where('discount', $id)
-            ->get();
+            ->where([
+                ['deleted', '=', false ],
+                ['discount', '=', $id]
+            ])->get();
             if(count($products) > 0) {
                 foreach($products as $x) {
                     $x->discount = null;

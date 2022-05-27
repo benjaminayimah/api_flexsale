@@ -165,7 +165,33 @@ class saleController extends Controller
             'type' => $type
         ], 200);
     }
+    public function fetchDetailedRecordList(Request $request) {
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
+        $recordList = Sale::find($request['id'])->getSaleItems;
+        return response()->json([
+            'result' => $recordList
+        ], 200);
 
+    }
+    public function receiptDetailedRecord(Request $request) {
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
+        try {
+            $result = Store::find($user->current)->getSales()
+            ->where('receipt', $request['receipt'])
+            ->get();
+        } catch (\Throwable $th) {
+            return response()->json([
+                'title' => 'Error!',
+            ], 500);
+        }
+        return response()->json([
+            'result' => $result
+        ], 200);
+    }
   
     public function update(Request $request, $id)
     {

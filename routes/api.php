@@ -29,10 +29,18 @@ Route::apiResources([
     'discount' => 'API\discountController',
     'perform-sale' => 'API\saleController',
     'suppliers' => 'API\supplierController',
+    'trash' => 'API\trashController',
+
 
 ]);
 Route::post('/fetch-item' , [
     'uses' => 'API\saleController@fetchItem',
+]);
+Route::post('/fetch-detailed-record-list' , [
+    'uses' => 'API\saleController@fetchDetailedRecordList',
+]);
+Route::post('/receipt-detailed-record' , [
+    'uses' => 'API\saleController@receiptDetailedRecord',
 ]);
 Route::post('/get-admin-users' , [
     'uses' => 'API\userController@fetchAdmins',
@@ -40,6 +48,20 @@ Route::post('/get-admin-users' , [
 Route::post('/get-this-admin-user' , [
     'uses' => 'API\userController@fetchThisAdmin',
 ]);
+Route::post('/move-to-trash' , [
+    'uses' => 'API\trashController@moveThisToTrash',
+]);
+Route::post('/bulk-restore-trash' , [
+    'uses' => 'API\trashController@bulkRestoreProducts',
+]);
+Route::post('/bulk-delete-trash-selection' , [
+    'uses' => 'API\trashController@bulkDeleteTrash',
+]);
+Route::post('/empty-trash' , [
+    'uses' => 'API\trashController@emptyTrash',
+]);
+
+
 
 Route::post('/create-admin-user' , [
     'uses' => 'API\signupController@createAdminUser',

@@ -324,32 +324,9 @@ class productController extends Controller
             return response()->json(['status' => 'An error has occured!'], 500);
         }
         return response()->json([
-            'status' => 'Product deleted successfully.',
+            'status' => 'Product is deleted',
             'id' => $id
         ], 200);
     }
 
-    // public function bulkdelete(Request $request ) {
-    //     if (! $user = JWTAuth::parseToken()->authenticate()) {
-    //         return response()->json(['status' => 'User not found!'], 404);
-    //     }
-    //     try{
-    //         foreach($request[0] as $id) {
-    //             $images = Product::find($id)->image;
-    //             foreach($images as $image) {
-    //                 $img = Image::findOrFail($image->id);
-    //                 $img->delete();
-    //                 if (Storage::disk('public')->exists($user->id.'/'.$image->name)) {
-    //                     Storage::disk('public')->delete($user->id.'/'.$image->name);
-    //                 }
-    //             }
-    //             $product = Product::findOrFail($id);
-    //             $product->delete();
-
-    //         }
-    //     }catch (\Throwable $th) {
-    //         return response()->json(['status' => 'An error has occured!'], 500);
-    //     }
-    //     return response()->json(['status' => 'Products deleted successfully.'], 200);
-    // }
 }

@@ -44,7 +44,7 @@ class tagController extends Controller
         if(count($tags) != 0){
             $filters = DB::table('tag_items')
             ->join('products', 'tag_items.product_id', '=', 'products.id')
-            ->where('tag_items.store_id', '=', $store_id)
+            ->where(['tag_items.store_id' => $store_id , 'products.deleted' => false ])
             ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.id', 'products.name', 'products.image', 'products.cost', 'products.selling_price', 'products.discount')
             ->get();
         }
@@ -67,7 +67,7 @@ class tagController extends Controller
             if($tag) {
                 $filters = DB::table('tag_items')
                 ->join('products', 'tag_items.product_id', '=', 'products.id')
-                ->where(['tag_items.store_id' =>  $store_id, 'tag_items.tag_id' => $tag_id ])
+                ->where(['tag_items.store_id' =>  $store_id, 'tag_items.tag_id' => $tag_id, 'products.deleted' => false ])
                 ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.id', 'products.name', 'products.image', 'products.selling_price', 'products.discount', 'products.stock')
                 ->get();
             }
