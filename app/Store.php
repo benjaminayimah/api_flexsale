@@ -24,4 +24,10 @@ class Store extends Model
     public function getSuppliers() {
         return $this->hasMany(Supplier::class);
     }
+    public function getNotifications() {
+        return $this->hasMany(Notification::class);
+    }
+    public function getProductUnits() {
+        return $this->hasMany(Unit::class);
+    }
 }

@@ -140,8 +140,8 @@ class saleController extends Controller
                 $end_date = Carbon::today()->toDateTimeString();
                 //inbetween range
                 if($type == 3) {
-                    $start_date = \Carbon\Carbon::parse($request['start'])->toDateTimeString();;
-                    $end_date = \Carbon\Carbon::parse($request['end'])->addDays(1)->toDateTimeString();;
+                    $start_date = \Carbon\Carbon::parse($request['start'])->toDateTimeString();
+                    $end_date = \Carbon\Carbon::parse($request['end'])->addDays(1)->toDateTimeString();
                 }
                 $result = Store::find($user->current)->getSales()
                     ->whereBetween('created_at',[

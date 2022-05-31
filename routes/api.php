@@ -30,6 +30,8 @@ Route::apiResources([
     'perform-sale' => 'API\saleController',
     'suppliers' => 'API\supplierController',
     'trash' => 'API\trashController',
+    'notification' => 'API\notificationController',
+
 
 
 ]);

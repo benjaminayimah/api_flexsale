@@ -112,14 +112,14 @@ class trashController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
-        
+        $store = $user->current;
         $productsArr = array();
         $userAdminID = $user->id;
         if($user->role != 1) {
             $userAdminID = $user->admin_id;
         }
         foreach ($request['items'] as $key => $prod_id) {
-            $tagItems = Store::find($user->current)->getFilters()
+            $tagItems = Store::find($store)->getFilters()
             ->where('product_id', $prod_id)->get();
             if(count($tagItems) > 0) {
                 foreach($tagItems as $key => $item) {
@@ -132,11 +132,19 @@ class trashController extends Controller
                     $unit->delete();
                 }
             }
-            $product = Store::find($user->current)->getProducts()
+            $notification = Store::find($store)->getNotifications()
+            ->where('product_id', $prod_id)
+            ->get();
+            if(count($notification) > 0) {
+                foreach($notification as $noti) {
+                    $noti->delete();
+                }
+            }
+            $product = Store::find($store)->getProducts()
             ->where('id', $prod_id)->first();
             $image = $product->image;
-            if (Storage::disk('public')->exists($userAdminID.'/'.$user->current.'/'.$image)) {
-                Storage::disk('public')->delete($userAdminID.'/'.$user->current.'/'.$image);
+            if (Storage::disk('public')->exists($userAdminID.'/'.$store.'/'.$image)) {
+                Storage::disk('public')->delete($userAdminID.'/'.$store.'/'.$image);
             }
             $product->delete();
             array_push($productsArr, $product);

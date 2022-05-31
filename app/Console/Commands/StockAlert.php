@@ -42,7 +42,6 @@ class StockAlert extends Command
         $products = Unit::all();
         foreach ($products as $key) {
             if($now->gt($key->expiry_date) ) {
-                // $discount = Unit::find($key->id);
                 $key->active = 0;
                 $key->update();
             }

@@ -203,10 +203,8 @@ class productController extends Controller
 
             if($request['prodType'] == '0') {
              if(count($request['batch']) > 0) {
-                    // $oldUnit = DB::table('units')->where('product_id', $id)->get();
                     $oldUnit = Product::find($id)->getUnits;
                     foreach ($oldUnit as $key) {
-                        // $old_unit = Unit::find($key->id);
                         $key->delete();
                     }
                     foreach ($request['batch'] as $key) {
@@ -290,27 +288,32 @@ class productController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
+        $store = $user->current;
         try {
             $userAdminID = $user->id;
             if($user->role != 1) {
                 $userAdminID = $user->admin_id;
             }
-            // $tagItems1 = DB::table('tag_items')->where('product_id', $id)->get();
-            $tagItems = Store::find($user->current)->getFilters()
+            $tagItems = Store::find($store)->getFilters()
             ->where('product_id', $id)
             ->get();
             if(count($tagItems) > 0) {
                 foreach($tagItems as $item) {
-                    // $tagItem = TagItem::findOrFail($item->id);
                     $item->delete();
                 }
             }
-            // $units = DB::table('units')->where('product_id', $id)->get();
             $units = Product::find($id)->getUnits;
             if(count($units) > 0) {
                 foreach($units as $unit) {
-                    // $unitItem = Unit::findOrFail($unit->id);
                     $unit->delete();
+                }
+            }
+            $notification = Store::find($store)->getNotifications()
+            ->where('product_id', $id)
+            ->get();
+            if(count($notification) > 0) {
+                foreach($notification as $noti) {
+                    $noti->delete();
                 }
             }
             $product = Product::findOrFail($id);

@@ -43,6 +43,7 @@ class userController extends Controller
         $sales = [];
         $sales_items = [];
         $suppliers = [];
+        $yesterday_total = 0;
         try {
             if($user->role == 1) {
                 $stores = User::find($user->id)->getStores;
@@ -77,7 +78,6 @@ class userController extends Controller
                     ->whereBetween('created_at',[
                     $start_date, $end_date
                 ])->get();
-                $yesterday_total = 0;
                 foreach($yesterday_sale as $key=>$value){
                 if(isset($value->total_paid))   
                     $yesterday_total += $value->total_paid;
