@@ -69,7 +69,7 @@ class notificationController extends Controller
         $notificationsArr = DB::table('notifications')
             ->join('products', 'notifications.product_id', '=', 'products.id')
             ->where(['notifications.store_id' => $store, 'products.deleted' => false])
-            ->select('notifications.*', 'products.name', 'products.image')
+            ->select('notifications.*', 'products.name', 'products.image', 'products.stock')
             ->get();
         }
         

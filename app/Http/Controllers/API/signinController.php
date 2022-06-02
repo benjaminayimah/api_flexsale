@@ -32,10 +32,8 @@ class signinController extends Controller
                 'status' => 'Could not create token.'
             ], 500);
         }
-
-
         return response()->json([
-            'token' => $token,
+            'token' => $token
         ], 200);
     }
 

@@ -17,7 +17,7 @@ class signupController extends Controller
         $this->validate($request, [
             'email' => 'required|email|unique:users',
             'name' => 'required',
-            'password' => 'required|min:6',
+            'password' => 'required|min:6|regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[!@#$%^&*()+=_-~`.,;?><{}"]).*$/',
         ]);
         
 
@@ -28,12 +28,8 @@ class signupController extends Controller
             $newuser->email = $request['email'];
             $newuser->password = bcrypt($request['password']);
             $newuser->save();
-
             $newuser->admin_id = $newuser->id;
             $newuser->update();
-
-            // $newuser = User::create(request(['name', 'email', 'password']));
-
         } catch (\Throwable $th) {
             return response()->json([
                 'title' => 'Error!',
@@ -42,7 +38,10 @@ class signupController extends Controller
         }
         return response()->json([
             'title' => 'Success!',
-            'status' => 'Account successfully created.'
+            'status' => 'Account successfully created.',
+            'name' => $newuser->name,
+            'email' => $newuser->email,
+            'password' => $request['password']
         ], 200);
 
     }
