@@ -31,6 +31,8 @@ Route::apiResources([
     'suppliers' => 'API\supplierController',
     'trash' => 'API\trashController',
     'notification' => 'API\notificationController',
+    'search' => 'API\searchController',
+
 
 
 
@@ -105,8 +107,6 @@ Route::post('/filter-sale-record' , [
 
 
 
-
-
 Route::post('/check-unit' , [
     'uses' => 'API\productController@checkUnit',
 ]);
@@ -123,7 +123,6 @@ Route::post('/get-this-filter' , [
 Route::post('/get-this-discount' , [
     'uses' => 'API\discountController@getThisDiscount',
 ]);
-
 
 
 Route::post('/bulk-del-products', [

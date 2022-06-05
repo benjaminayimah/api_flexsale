@@ -36,19 +36,16 @@ class tagController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
-        $user = JWTAuth::parseToken()->toUser();
-
-        $store_id = JWTAuth::parseToken()->toUser()->current;
-        $tags = Store::find($user->current)->getTags;
+        $store_id = $user->current;
+        $tags = Store::find($store_id)->getTags;
         $filters = '';
         if(count($tags) != 0){
             $filters = DB::table('tag_items')
             ->join('products', 'tag_items.product_id', '=', 'products.id')
             ->where(['tag_items.store_id' => $store_id , 'products.deleted' => false ])
-            ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.id', 'products.name', 'products.image', 'products.cost', 'products.selling_price', 'products.discount')
+            ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.id', 'products.name', 'products.image', 'products.cost', 'products.selling_price', 'products.discount', 'products.created_at')
             ->get();
-        }
-            
+        } 
         return response()->json([
             'filters' => $filters
         ], 200);

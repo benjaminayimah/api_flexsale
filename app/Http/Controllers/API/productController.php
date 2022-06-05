@@ -201,43 +201,44 @@ class productController extends Controller
             $product->supplier_id = $request['supplier'];
             $product->update();
 
-            if($request['prodType'] == '0') {
-             if(count($request['batch']) > 0) {
-                    $oldUnit = Product::find($id)->getUnits;
-                    foreach ($oldUnit as $key) {
-                        $key->delete();
-                    }
-                    foreach ($request['batch'] as $key) {
-                    $unit = new Unit();
-                    $unit->store_id = $user->current;
-                    $unit->product_id = $id;
-                    $unit->batch_no = $key['batch_no'];
-                    $unit->expiry_date = $key['expiry_date'];
-                    if($today->gt($key['expiry_date']) ) {
-                        $unit->active = 0;
-                    }
-                    $unit->save();
+            // if($request['prodType'] == '0') {
+            //  if(count($request['batch']) > 0) {
+            //         $oldUnit = Product::find($id)->getUnits;
+            //         foreach ($oldUnit as $key) {
+            //             $key->delete();
+            //         }
+            //         foreach ($request['batch'] as $key) {
+            //         $unit = new Unit();
+            //         $unit->store_id = $user->current;
+            //         $unit->product_id = $id;
+            //         $unit->batch_no = $key['batch_no'];
+            //         $unit->expiry_date = $key['expiry_date'];
+            //         if($today->gt($key['expiry_date']) ) {
+            //             $unit->active = 0;
+            //         }
+            //         $unit->save();
 
-                }
-             }
-            }else {
-                if ($request['batch']['batch_no']) {
-                    $Oldunit = Product::find($id)->getUnits;
-                    foreach ($Oldunit as $key) {
-                        $key->delete();
-                    }
-                    $newUnit = new Unit();
-                    $newUnit->store_id = $user->current;
-                    $newUnit->product_id = $id;
-                    $newUnit->batch_no = $request['batch']['batch_no'];
-                    $newUnit->expiry_date = $request['batch']['expiry_date'];
-                    if($today->gt($request['batch']['expiry_date'])) {
-                        $newUnit->active = 0;
-                    }
-                    $newUnit->save();
-                }
+            //     }
+            //  }
+            // }else {
+            //     if ($request['batch']['batch_no']) {
+            //         $Oldunit = Product::find($id)->getUnits;
+            //         foreach ($Oldunit as $key) {
+            //             $key->delete();
+            //         }
+            //         $newUnit = new Unit();
+            //         $newUnit->store_id = $user->current;
+            //         $newUnit->product_id = $id;
+            //         $newUnit->batch_no = $request['batch']['batch_no'];
+            //         $newUnit->expiry_date = $request['batch']['expiry_date'];
+            //         if($today->gt($request['batch']['expiry_date'])) {
+            //             $newUnit->active = 0;
+            //         }
+            //         $newUnit->save();
+            //     }
                 
-            }if($request['tempImage'] != null && $product->image != $request['tempImage']) {
+            // }
+            if($request['tempImage'] != null && $product->image != $request['tempImage']) {
                 if (Storage::disk('public')->exists($userAdminID.'/temp'.'/'.$request['tempImage'])) {
                     $old_pic = $product->image;
                     Storage::disk('public')->move($userAdminID.'/temp'.'/'.$request['tempImage'], $userAdminID.'/'.$user->current.'/'.$request['tempImage']);
@@ -264,7 +265,7 @@ class productController extends Controller
                 Storage::deleteDirectory('public/'.$userAdminID.'/temp');
             }
             $newProduct = DB::table('products')->where('id', $product->id)->first();
-            $units = Product::find($id)->getUnits;
+            // $units = Product::find($id)->getUnits;
 
         } catch(\Throwable $th) {
             return response()->json([
@@ -277,7 +278,7 @@ class productController extends Controller
             'title' => 'Product is successfully updated',
             'body' => 'Product is successfully updated',
             'product' => $newProduct,
-            'units' => $units
+            // 'units' => $units
         ], 200);
 
     }
