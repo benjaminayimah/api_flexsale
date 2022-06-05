@@ -27,8 +27,7 @@ class searchController extends Controller
             ->orWhere('description', 'like', '%' . $query . '%')
             ->get();
         return response()->json([
-            'results' => $products,
-            'input' => $request['query']
+            'results' => $products
         ], 200);
     }
 }
