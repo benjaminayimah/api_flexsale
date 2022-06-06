@@ -28,6 +28,7 @@ class searchController extends Controller
             ->get();
         return response()->json([
             'results' => $products
+            // 'input' => $request['query']
         ], 200);
     }
 }
