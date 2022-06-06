@@ -265,7 +265,7 @@ class productController extends Controller
                 Storage::deleteDirectory('public/'.$userAdminID.'/temp');
             }
             $newProduct = DB::table('products')->where('id', $product->id)->first();
-            // $units = Product::find($id)->getUnits;
+            $units = Product::find($id)->getUnits;
 
         } catch(\Throwable $th) {
             return response()->json([
@@ -278,7 +278,7 @@ class productController extends Controller
             'title' => 'Product is successfully updated',
             'body' => 'Product is successfully updated',
             'product' => $newProduct,
-            // 'units' => $units
+            'units' => $units
         ], 200);
 
     }
