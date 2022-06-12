@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Store;
 use App\Tag;
 use App\TagItem;
-
+use App\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\DB;
 
@@ -36,16 +36,24 @@ class tagController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
-        $store_id = $user->current;
-        $tags = Store::find($store_id)->getTags;
-        $filters = '';
-        if(count($tags) != 0){
-            $filters = DB::table('tag_items')
-            ->join('products', 'tag_items.product_id', '=', 'products.id')
-            ->where(['tag_items.store_id' => $store_id , 'products.deleted' => false ])
-            ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.id', 'products.name', 'products.image', 'products.cost', 'products.selling_price', 'products.discount', 'products.created_at')
-            ->get();
-        } 
+        $filters = [];
+        $stores = [];
+        if($user->role == 1) {
+            $stores = User::find($user->id)->getStores;
+        }elseif ($user->role == 2) {
+            $stores = User::find($user->admin_id)->getStores;
+        }
+        if(count($stores) > 0) {
+            $store_id = $user->current;
+            $tags = Store::find($store_id)->getTags;
+            if(count($tags) != 0){
+                $filters = DB::table('tag_items')
+                ->join('products', 'tag_items.product_id', '=', 'products.id')
+                ->where(['tag_items.store_id' => $store_id , 'products.deleted' => false ])
+                ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.id', 'products.name', 'products.image', 'products.cost', 'products.selling_price', 'products.discount', 'products.created_at')
+                ->get();
+            } 
+        }
         return response()->json([
             'filters' => $filters
         ], 200);

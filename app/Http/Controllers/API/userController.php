@@ -44,6 +44,7 @@ class userController extends Controller
         $sales_items = [];
         $suppliers = [];
         $yesterday_total = 0;
+        $hasStore = false;
         try {
             if($user->role == 1) {
                 $stores = User::find($user->id)->getStores;
@@ -51,6 +52,7 @@ class userController extends Controller
                 $stores = User::find($user->admin_id)->getStores;
             }
             if(count($stores) > 0) {
+                $hasStore = true;
                 $tags = Store::find($user->current)->getTags;
                 $products = Store::find($user->current)->getProducts()
                 ->where('deleted', false)
@@ -97,7 +99,8 @@ class userController extends Controller
                     'sales_items' => $sales_items,
                     'suppliers' => $suppliers,
                     'today' => Carbon::today(),
-                    'yesterday_sale' => $yesterday_total
+                    'yesterday_sale' => $yesterday_total,
+                    'hasStore' => $hasStore
                 ], 200);
             }
         } catch (\Throwable $th) {

@@ -5,15 +5,11 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Product;
-use App\Http\Resources\Product as ProductResource;
-use App\Image;
 use App\Store;
-use App\TagItem;
 use App\Unit;
 use Carbon\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 class productController extends Controller
@@ -153,10 +149,6 @@ class productController extends Controller
         } catch (\Throwable $th) {
             //throw $th;
         }
-
-        
-
-        
         
     }
 
