@@ -64,6 +64,9 @@ Route::post('/bulk-delete-trash-selection' , [
 Route::post('/empty-trash' , [
     'uses' => 'API\trashController@emptyTrash',
 ]);
+Route::post('/oauth-signin' , [
+    'uses' => 'API\signinController@oauthSignIn',
+]);
 
 
 

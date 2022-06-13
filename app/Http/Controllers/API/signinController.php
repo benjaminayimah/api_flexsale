@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
@@ -35,6 +36,50 @@ class signinController extends Controller
         return response()->json([
             'token' => $token
         ], 200);
+    }
+    public function oauthSignIn(Request $request) {
+        $status = 0;
+        $email = $request['email'];
+        $token = null;
+        $chekUser = User::all()
+        ->where('email', $email)
+        ->first();
+        try {
+            if(isset($chekUser)) {
+                $status = 1;
+                if( !$token = JWTAuth::fromUser($chekUser)) {
+                    return response()->json([
+                        'title' => 'Error!',
+                        'status' => 'Invalid credentials'
+                    ], 401);
+                }
+            }
+            // else {
+            //     $status = 2;
+            //     $newuser = new User();
+            //     $newuser->name = $request['name'];
+            //     $newuser->email = $request['email'];
+            //     $newuser->email_verified = true;
+            //     $newuser->save();
+            //     if( !$token = JWTAuth::fromUser($newuser)) {
+            //         return response()->json([
+            //             'title' => 'Error!',
+            //             'status' => 'Invalid credentials'
+            //         ], 401);
+            //     }
+            // }
+        } catch (JWTException $e) {
+            return response()->json([
+                'title' => 'Error!',
+                'status' => 'Could not create token.'
+            ], 500);
+        }
+    
+        return response()->json([
+            'status' => $status,
+            'token' => $token
+        ], 200);
+        
     }
 
     public function update(Request $request, $id)

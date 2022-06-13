@@ -19,9 +19,6 @@ class signupController extends Controller
             'name' => 'required',
             'password' => 'required|min:6|regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[!@#$%^&*()+=_-~`.,;?><{}"]).*$/',
         ]);
-        
-
-
         try {
             $newuser = new User();
             $newuser->name = $request['name'];
