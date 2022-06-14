@@ -8,6 +8,7 @@ use App\Sale;
 use App\SaleItem;
 use App\Store;
 use App\Unit;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -120,36 +121,50 @@ class saleController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
+        $stores = [];
+        $title = '';
+        $type = '';
+        $interval = '';
+        $result = array();
+        $start_date = '';
+        $end_date = '';
         try {
-            $title = $request['title'];
-            $type = $request['type'];
-            $interval = $request['interval'];
-            $result = array();
-            $start_date = '';
-            $end_date = '';
-            if($type == 0) {
-                //today
-                $end_date = Carbon::today()->toDateTimeString();
-                $result = Store::find($user->current)->getSales()
-                    ->where([
-                    ['created_at', '>=', $end_date]
-                ])->get();
-            }else{
-                //to today interval
-                $start_date = Carbon::today()->subDays($interval)->toDateTimeString();
-                $end_date = Carbon::today()->toDateTimeString();
-                //inbetween range
-                if($type == 3) {
-                    $start_date = \Carbon\Carbon::parse($request['start'])->toDateTimeString();
-                    $end_date = \Carbon\Carbon::parse($request['end'])->addDays(1)->toDateTimeString();
-                }
-                $result = Store::find($user->current)->getSales()
-                    ->whereBetween('created_at',[
-                    $start_date, $end_date
-                ])->get();
-                $end_date = \Carbon\Carbon::parse($end_date)->subDays(1)->toDateTimeString();
-                if($start_date == $end_date) {
-                    $start_date = '';
+            if($user->role == 1) {
+                $stores = User::find($user->id)->getStores;
+            }elseif ($user->role == 2) {
+                $stores = User::find($user->admin_id)->getStores;
+            }
+            if(count($stores) > 0) {
+                $title = $request['title'];
+                $type = $request['type'];
+                $interval = $request['interval'];
+                $result = array();
+                $start_date = '';
+                $end_date = '';
+                if($type == 0) {
+                    //today
+                    $end_date = Carbon::today()->toDateTimeString();
+                    $result = Store::find($user->current)->getSales()
+                        ->where([
+                        ['created_at', '>=', $end_date]
+                    ])->get();
+                }else{
+                    //to today interval
+                    $start_date = Carbon::today()->subDays($interval)->toDateTimeString();
+                    $end_date = Carbon::today()->toDateTimeString();
+                    //inbetween range
+                    if($type == 3) {
+                        $start_date = \Carbon\Carbon::parse($request['start'])->toDateTimeString();
+                        $end_date = \Carbon\Carbon::parse($request['end'])->addDays(1)->toDateTimeString();
+                    }
+                    $result = Store::find($user->current)->getSales()
+                        ->whereBetween('created_at',[
+                        $start_date, $end_date
+                    ])->get();
+                    $end_date = \Carbon\Carbon::parse($end_date)->subDays(1)->toDateTimeString();
+                    if($start_date == $end_date) {
+                        $start_date = '';
+                    }
                 }
             }
         } catch (\Throwable $th) {
