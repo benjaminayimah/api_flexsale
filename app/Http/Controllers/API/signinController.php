@@ -37,7 +37,7 @@ class signinController extends Controller
             'token' => $token
         ], 200);
     }
-    public function oauthSignIn(Request $request) {
+    public function OAuthSignIn(Request $request) {
         $status = 0;
         $email = $request['email'];
         $token = null;
@@ -54,20 +54,6 @@ class signinController extends Controller
                     ], 401);
                 }
             }
-            // else {
-            //     $status = 2;
-            //     $newuser = new User();
-            //     $newuser->name = $request['name'];
-            //     $newuser->email = $request['email'];
-            //     $newuser->email_verified = true;
-            //     $newuser->save();
-            //     if( !$token = JWTAuth::fromUser($newuser)) {
-            //         return response()->json([
-            //             'title' => 'Error!',
-            //             'status' => 'Invalid credentials'
-            //         ], 401);
-            //     }
-            // }
         } catch (JWTException $e) {
             return response()->json([
                 'title' => 'Error!',
@@ -77,6 +63,45 @@ class signinController extends Controller
     
         return response()->json([
             'status' => $status,
+            'token' => $token
+        ], 200);
+        
+    }
+    public function OAuthSignUp(Request $request) {
+        $token = null;
+        try {
+            $newuser = new User();
+            $newuser->name = $request['name'];
+            $newuser->email = $request['email'];
+            $newuser->email_verified = true;
+            $newuser->oauth = true;
+            $newuser->has_pass = false;
+            $newuser->oauth_provider = $request['type'];
+            $newuser->save();
+            $newuser->admin_id = $newuser->id;
+            $newuser->update();
+        } catch (\Throwable $th) {
+            return response()->json([
+                'title' => 'Error!',
+                'status' => 'Could not create user.'
+            ], 500);
+        }
+
+        try {
+            if( !$token = JWTAuth::fromUser($newuser)) {
+                return response()->json([
+                    'title' => 'Error!',
+                    'status' => 'Invalid credentials'
+                ], 401);
+            }
+        } catch (JWTException $e) {
+            return response()->json([
+                'title' => 'Error!',
+                'status' => 'Could not create token.'
+            ], 500);
+        }
+        return response()->json([
+            'user' => $newuser,
             'token' => $token
         ], 200);
         

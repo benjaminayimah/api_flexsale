@@ -150,10 +150,11 @@ class signupController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
+        $status = 0;
         $this->validate($request, [
             'newPassword' => 'required|min:6'
         ]);
-        if ($id == $user->id) {
+        if ($id == $user->id && $user->has_pass == true) {
             $this->validate($request, [
                 'password' => 'required'
             ]);
@@ -162,7 +163,7 @@ class signupController extends Controller
                 $current_pass = $admin->password;
                 $new_password = $request['newPassword'];
                 if (Hash::check($request['password'], $current_pass)) {
-                    $admin->password = bcrypt($request['newPassword']);
+                    $admin->password = bcrypt($new_password);
                     $admin->update();
                 }else {
                     return response()->json([
@@ -179,7 +180,9 @@ class signupController extends Controller
             try {
                 $admin = User::findOrFail($id);
                 $admin->password = bcrypt($request['newPassword']);
+                $admin->has_pass = true;
                 $admin->update();
+                $status = 1;
             } catch (\Throwable $th) {
                 return response()->json([
                     'title' => 'Error!'
@@ -187,6 +190,7 @@ class signupController extends Controller
             }
         }
         return response()->json([
+            'status' => $status,
             'message' => 'Password Updated!'
         ], 200);
 

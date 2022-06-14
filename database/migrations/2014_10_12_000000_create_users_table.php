@@ -20,6 +20,9 @@ class CreateUsersTable extends Migration
             $table->boolean('email_verified')->default(false);
             $table->string('password')->nullable();
             $table->enum('role', ['0', '1', '2' ])->default('1');
+            $table->boolean('oauth')->default(false);
+            $table->string('oauth_provider')->nullable();
+            $table->boolean('has_pass')->default(true);
             $table->string('current')->nullable();
             $table->string('admin_id')->nullable();
             $table->string('store_1')->nullable();

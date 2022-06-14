@@ -111,6 +111,22 @@ class userController extends Controller
         }
 
     }
+    public function reFreshUser(Request $request) {
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
+        try {
+            $user = User::findOrFail($user->id);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'title' => 'Error!',
+                'status' => 'Token error.'
+            ], 500);
+        }
+        return response()->json([
+            'user' => $user
+        ], 200);
+    }
     public function fetchAdmins(Request $request) {
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);

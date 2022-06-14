@@ -65,8 +65,15 @@ Route::post('/empty-trash' , [
     'uses' => 'API\trashController@emptyTrash',
 ]);
 Route::post('/oauth-signin' , [
-    'uses' => 'API\signinController@oauthSignIn',
+    'uses' => 'API\signinController@OAuthSignIn',
 ]);
+Route::post('/oauth-sign-up' , [
+    'uses' => 'API\signinController@OAuthSignUp',
+]);
+Route::post('/refresh-user' , [
+    'uses' => 'API\userController@reFreshUser',
+]);
+
 
 
 
