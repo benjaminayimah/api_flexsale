@@ -1,6 +1,5 @@
 <?php
 
-// use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,6 +31,8 @@ Route::apiResources([
     'trash' => 'API\trashController',
     'notification' => 'API\notificationController',
     'search' => 'API\searchController',
+    'waiting-list' => 'API\mailingController',
+
 
 
 
