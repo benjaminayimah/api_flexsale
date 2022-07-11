@@ -32,23 +32,18 @@ class productController extends Controller
 
     public function store(Request $request)
     {
-        
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
-        $stock = '';
-        $type = 0;
+        $stock = 0;
         $price = 0.00;
         $cost = 0.00;
         $userAdminID = $user->id;
         if($user->role != 1) {
             $userAdminID = $user->admin_id;
         }
-        if($request['prodType'] == '0') {
-            $stock = count($request['batch']);
-        }else{
-            $stock = $request['batch']['stock'];
-            $type = 1;
+        if($request['stock'] != '') {
+            $stock = $request['stock'];
         }
         if($request['sellingPrice'] != '') {
             $price = number_format((float)$request['sellingPrice'], 2, '.', '');
@@ -56,15 +51,13 @@ class productController extends Controller
         if($request['cost'] != '') {
             $cost = number_format((float)$request['cost'], 2, '.', '');
         }
-         $today = Carbon::today();
-         
-        
+        $today = Carbon::today();
         try {
             $product = new Product();
             $product->store_id = $user->current;
             $product->name = $request['name'];
             $product->image = null;
-            $product->prod_type = $type;
+            $product->prod_type = $request['prodType'];
             $product->cost = $cost;
             $product->selling_price = $price;
             $product->stock = $stock;
@@ -73,54 +66,33 @@ class productController extends Controller
             $product->discount = null;
             $product->added_by = $user->name;
             $product->save();
-
-            if($request['prodType'] == '0') {
-             if(count($request['batch']) > 0) {
-                 foreach ($request['batch'] as $key) {
-                    $unit = new Unit();
-                    $unit->store_id = $user->current;
-                    $unit->product_id = $product->id;
-                    $unit->batch_no = $key['batch_no'];
-                    $unit->expiry_date = $key['expiry_date'];
-                    if($today->gt($key['expiry_date']) ) {
-                        $unit->active = 0;
-                    }
-                    $unit->save();
-                    
-                 }
-             }
-            }else {
-                if ($request['batch']['batch_no']) {
-                    $unit = new Unit();
-                    $unit->store_id = $user->current;
-                    $unit->product_id = $product->id;
-                    $unit->batch_no = $request['batch']['batch_no'];
-                    $unit->expiry_date = $request['batch']['expiry_date'];
-                    if($today->gt($request['batch']['expiry_date']) ) {
-                        $unit->active = 0;
-                    }
-                    $unit->save();
+            if ($request['prodType'] == '0') {
+                $unit = new Unit();
+                $unit->store_id = $user->current;
+                $unit->product_id = $product->id;
+                $unit->batch_no = $request['batch'];
+                $unit->expiry_date = $request['expiryDate'];
+                $unit->unit_stock = $stock;
+                if($today->gt($request['expiryDate']) ) {
+                    $unit->active = 0;
                 }
-                
-            }if($request['tempImage'] != null) {
+                $unit->save();
+            }
+            if($request['tempImage'] != null) {
                 if (Storage::disk('public')->exists($userAdminID.'/temp'.'/'.$request['tempImage'])) {
                     Storage::disk('public')->move($userAdminID.'/temp'.'/'.$request['tempImage'], $userAdminID.'/'.$user->current.'/'.$request['tempImage']);
                     $productimg = Product::find($product->id);
                     $productimg->image = $request['tempImage'];
                     $productimg->update();
                     Storage::deleteDirectory('public/'.$userAdminID.'/temp');
-
                 };
             }
             $newProduct = DB::table('products')->where('id', $product->id)->first();
-
-
         } catch(\Throwable $th) {
             return response()->json([
                 'title' => 'Error!',
                 'body' => 'Could not upload the product, please check your connection.'
             ], 500);
-
         }
         return response()->json([
             'title' => 'Product is successfully added',
@@ -130,7 +102,6 @@ class productController extends Controller
     }
 
     public function checkUnit(Request $request) {
-
         $store = JWTAuth::parseToken()->toUser()->current;
         try {
             $check = DB::table('units')->where([
@@ -160,20 +131,12 @@ class productController extends Controller
             return response()->json(['status' => 'User not found!'], 404);
         }
         $user = JWTAuth::parseToken()->toUser();
-        $stock = '';
-        $type = 0;
+        // $type = 0;
         $price = 0.00;
         $cost = 0.00;
         $userAdminID = $user->id;
         if($user->role != 1) {
             $userAdminID = $user->admin_id;
-        }
-
-        if($request['prodType'] == '0') {
-            $stock = count($request['batch']);
-        }else{
-            $stock = $request['batch']['stock'];
-            $type = 1;
         }
         if($request['sellingPrice'] != '') {
             $price = number_format((float)$request['sellingPrice'], 2, '.', '');
@@ -181,55 +144,14 @@ class productController extends Controller
         if($request['cost'] != '') {
             $cost = number_format((float)$request['cost'], 2, '.', '');
         }
-         $today = Carbon::today();
          try {
             $product = Product::findOrFail($id);
             $product->name = $request['name'];
-            $product->prod_type = $type;
             $product->cost = $cost;
             $product->selling_price = $price;
-            $product->stock = $stock;
             $product->description = $request['description'];
             $product->supplier_id = $request['supplier'];
             $product->update();
-
-            // if($request['prodType'] == '0') {
-            //  if(count($request['batch']) > 0) {
-            //         $oldUnit = Product::find($id)->getUnits;
-            //         foreach ($oldUnit as $key) {
-            //             $key->delete();
-            //         }
-            //         foreach ($request['batch'] as $key) {
-            //         $unit = new Unit();
-            //         $unit->store_id = $user->current;
-            //         $unit->product_id = $id;
-            //         $unit->batch_no = $key['batch_no'];
-            //         $unit->expiry_date = $key['expiry_date'];
-            //         if($today->gt($key['expiry_date']) ) {
-            //             $unit->active = 0;
-            //         }
-            //         $unit->save();
-
-            //     }
-            //  }
-            // }else {
-            //     if ($request['batch']['batch_no']) {
-            //         $Oldunit = Product::find($id)->getUnits;
-            //         foreach ($Oldunit as $key) {
-            //             $key->delete();
-            //         }
-            //         $newUnit = new Unit();
-            //         $newUnit->store_id = $user->current;
-            //         $newUnit->product_id = $id;
-            //         $newUnit->batch_no = $request['batch']['batch_no'];
-            //         $newUnit->expiry_date = $request['batch']['expiry_date'];
-            //         if($today->gt($request['batch']['expiry_date'])) {
-            //             $newUnit->active = 0;
-            //         }
-            //         $newUnit->save();
-            //     }
-                
-            // }
             if($request['tempImage'] != null && $product->image != $request['tempImage']) {
                 if (Storage::disk('public')->exists($userAdminID.'/temp'.'/'.$request['tempImage'])) {
                     $old_pic = $product->image;
@@ -257,7 +179,6 @@ class productController extends Controller
                 Storage::deleteDirectory('public/'.$userAdminID.'/temp');
             }
             $newProduct = DB::table('products')->where('id', $product->id)->first();
-            $units = Product::find($id)->getUnits;
 
         } catch(\Throwable $th) {
             return response()->json([
@@ -267,10 +188,10 @@ class productController extends Controller
 
         }
         return response()->json([
-            'title' => 'Product is successfully updated',
+            'title' => 'Success',
             'body' => 'Product is successfully updated',
             'product' => $newProduct,
-            'units' => $units
+            // 'units' => $units
         ], 200);
 
     }

@@ -48,8 +48,7 @@ class saleController extends Controller
         }
 
     }
-
-
+    
     public function store(Request $request)
     {
         if (! $user = JWTAuth::parseToken()->authenticate()) {
@@ -95,9 +94,10 @@ class saleController extends Controller
                     $product->stock = $product->stock - $key['qty'];
                     $product->update();
                 }
-                if($key['prod_type'] == 0) {
-                    $unit = Unit::findOrFail($key['id']);
-                    $unit->delete();
+                $unit = Unit::findOrFail($key['id']);
+                if($unit->unit_stock > 0) {
+                    $unit->unit_stock = $unit->unit_stock - $key['qty'];
+                    $unit->update();
                 }
             }
             $new_sale = DB::table('sales')->where('id', $sale->id)->first();

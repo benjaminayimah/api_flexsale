@@ -32,10 +32,12 @@ Route::apiResources([
     'notification' => 'API\notificationController',
     'search' => 'API\searchController',
     'waiting-list' => 'API\mailingController',
+    'product-batch' => 'API\stockController',
 
 
 
 
+    
 
 ]);
 Route::post('/fetch-item' , [
@@ -73,6 +75,9 @@ Route::post('/oauth-sign-up' , [
 ]);
 Route::post('/refresh-user' , [
     'uses' => 'API\userController@reFreshUser',
+]);
+Route::post('/fetch-prod-batches' , [
+    'uses' => 'API\stockController@fetchBatches',
 ]);
 
 

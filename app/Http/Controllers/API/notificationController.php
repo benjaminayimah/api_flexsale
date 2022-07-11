@@ -71,7 +71,6 @@ class notificationController extends Controller
             ->select('notifications.*', 'products.name', 'products.image', 'products.stock')
             ->get();
         }
-        
         return response()->json([
             'notifications' => $notificationsArr
         ], 200);

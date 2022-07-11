@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUnitsTable extends Migration
+class CreateWaitingListsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,9 @@ class CreateUnitsTable extends Migration
      */
     public function up()
     {
-        Schema::create('units', function (Blueprint $table) {
+        Schema::create('waiting_lists', function (Blueprint $table) {
             $table->id();
-            $table->string('store_id');
-            $table->string('product_id');
-            $table->string('batch_no');
-            $table->string('unit_stock')->nullable();
-            $table->string('expiry_date')->nullable();
-            $table->boolean('active')->default(true);
+            $table->string('email');
             $table->timestamps();
         });
     }
@@ -32,6 +27,6 @@ class CreateUnitsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('units');
+        Schema::dropIfExists('waiting_lists');
     }
 }

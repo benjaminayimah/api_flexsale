@@ -18,9 +18,9 @@ class CreateStoresTable extends Migration
             $table->string('user_id');
             $table->string('name');
             $table->string('classification')->nullable();
-            $table->string('phone_1');
+            $table->string('phone_1')->nullable();
             $table->string('phone_2')->nullable();
-            $table->text('address')->nullable();
+            $table->text('address');
             $table->string('city');
             $table->string('region')->nullable();
             $table->string('country');

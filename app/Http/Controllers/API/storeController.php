@@ -57,10 +57,8 @@ class storeController extends Controller
         }
         $this->validate($request, [
             'name' => 'required',
-            'phone1' => 'required',
             'address' => 'required',
             'city' => 'required',
-            'region' => 'required',
             'country' => 'required',  
         ]);
         try {

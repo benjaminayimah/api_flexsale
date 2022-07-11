@@ -6,10 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Product;
 use App\Store;
-use App\Image;
-use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Illuminate\Support\Facades\Storage;
 
 class productDetailController extends Controller
 {
@@ -38,7 +35,6 @@ class productDetailController extends Controller
                 'title' => 'Error!',
             ], 500);
         }
-
         return response()->json([
             'product' => $product,
             'units' => $units

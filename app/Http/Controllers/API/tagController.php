@@ -50,7 +50,7 @@ class tagController extends Controller
                 $filters = DB::table('tag_items')
                 ->join('products', 'tag_items.product_id', '=', 'products.id')
                 ->where(['tag_items.store_id' => $store_id , 'products.deleted' => false ])
-                ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.id', 'products.name', 'products.image', 'products.cost', 'products.selling_price', 'products.discount', 'products.created_at')
+                ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.id', 'products.stock', 'products.name', 'products.image', 'products.cost', 'products.selling_price', 'products.discount', 'products.created_at')
                 ->get();
             } 
         }
@@ -81,7 +81,6 @@ class tagController extends Controller
                 'title' => 'Error!',
             ], 500);
         }  
-            
         return response()->json([
             'filters' => $filters,
             'tag' => $tag

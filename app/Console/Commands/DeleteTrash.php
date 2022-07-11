@@ -40,15 +40,16 @@ class DeleteTrash extends Command
      */
     public function handle()
     {
-        $now = Carbon::today();
-        $products = Product::where('deleted', true)->get();
-        foreach ($products as $key => $value) {
-            $expired_date = \Carbon\Carbon::parse($value->updated_at)->addDays(30)->toDateTimeString();
-            if ($now > $expired_date) {
-                $value->delete();
-            }
-        }
-        $this->info('Trash Item is Deleted');
+        //COME BACK TO THIS
+        // $now = Carbon::today();
+        // $products = Product::where('deleted', true)->get();
+        // foreach ($products as $key => $value) {
+        //     $expired_date = \Carbon\Carbon::parse($value->updated_at)->addDays(30)->toDateTimeString();
+        //     if ($now > $expired_date) {
+        //         $value->delete();
+        //     }
+        // }
+        // $this->info('Trash Item is Deleted');
 
     }
 }

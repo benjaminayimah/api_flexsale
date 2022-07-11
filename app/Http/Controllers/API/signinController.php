@@ -39,29 +39,11 @@ class signinController extends Controller
     }
     public function verifyToken($id_token) {
         return true;
-        // verify token
-        // require_once 'vendor/autoload.php';
-
-        // $client = new Google_Client(['617984689362-02931j85j49mm913mn3lf72j4njggajg.apps.googleusercontent.com' => $CLIENT_ID]);  // Specify the CLIENT_ID of the app that accesses the backend
-        // $payload = $client->verifyIdToken($id_token);
-        // if ($payload) {
-        //   $userid = $payload['sub'];
-        //   // If request specified a G Suite domain:
-        //   //$domain = $payload['hd'];
-        // } else {
-        //   // Invalid ID token
-        // }
     }
     public function OAuthSignIn(Request $request) {
         $status = 0;
         $token = null;
         $id_token = 'me';
-
-        // $user = Socialite::driver('google')->userFromToken($id_token);
-        // return response()->json([
-        //     'status' => Socialite::driver('google')->user()
-        // ], 200);
-        
         if($this->verifyToken($id_token)) {
             $email = $request['email'];
             $id = $request['sub'];
