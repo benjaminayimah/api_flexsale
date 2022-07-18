@@ -48,12 +48,14 @@ class saleController extends Controller
         }
 
     }
-    
+
     public function store(Request $request)
     {
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
+        $newItemsArr = array();
+        $newProductArr = array();
         try {
             $sale = new Sale();
             $sale->store_id = $user->current;
@@ -76,15 +78,21 @@ class saleController extends Controller
                 $item->quantity = $key['qty'];
                 $item->batch = $key['batch_no'];
                 $item->total_paid = $key['qty'] * $key['unit_price'];
+                $item->price_before = $key['unit_price'];
                 if($key['discount'] != null) {
-                    $item->discounted = 1;
-                    $check = DB::table('discounts')->where('id', $key['discount'])->first();
-                    $discountPrice = $check->value.'%';
-                    if($check->percentage != 1) {
-                        $discountPrice = $request['currency'].$check->value;
+                    $checkDis = Store::find($user->current)->getDiscounts()
+                    ->where('id', $key['discount'])->first();
+                    if($checkDis->active == true) {
+                        $item->discounted = 1;
+                        $check = DB::table('discounts')->where('id', $key['discount'])->first();
+                        $discountPrice = $check->value.'%';
+                        if($check->percentage != 1) {
+                            $discountPrice = $request['currency'].$check->value;
+                        }
+                        $item->discount_val = $discountPrice;
+                    }else {
+                        $item->discounted = 0;
                     }
-                    $item->discount_val = $discountPrice;
-                    $item->price_before = $key['og_price'];
                 }else{
                     $item->discounted = 0;
                 }
@@ -94,11 +102,13 @@ class saleController extends Controller
                     $product->stock = $product->stock - $key['qty'];
                     $product->update();
                 }
+                array_push($newProductArr, $product);
                 $unit = Unit::findOrFail($key['id']);
                 if($unit->unit_stock > 0) {
                     $unit->unit_stock = $unit->unit_stock - $key['qty'];
                     $unit->update();
                 }
+                array_push($newItemsArr, $unit);
             }
             $new_sale = DB::table('sales')->where('id', $sale->id)->first();
             $sales_items = DB::table('sale_items')->where([
@@ -113,8 +123,8 @@ class saleController extends Controller
         return response()->json([
             'sale' => $new_sale,
             'sale_items' => $sales_items,
-            'items' => $request['items'],
-            'product' => $product
+            'items' => $newItemsArr,
+            'product' => $newProductArr
         ], 200);
     }
     public function filterSaleRecord(Request $request) {

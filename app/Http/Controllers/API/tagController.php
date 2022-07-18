@@ -63,7 +63,7 @@ class tagController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
-        $store_id = JWTAuth::parseToken()->toUser()->current;
+        $store_id = $user->current;
         $tag_id = $request['id'];
 
         try {
@@ -86,26 +86,16 @@ class tagController extends Controller
             'tag' => $tag
         ], 200);
     }
-
-  
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
-        $store_id = JWTAuth::parseToken()->toUser()->current;
+        $store_id = $user->current;
         $this->validate($request, [
             'tag' => 'required',
             'products' => 'required'
         ]);
-     
         try {
             $tagg = trim($request['tag']);
             $count = DB::table('tags')->where(['store_id' => $store_id, 'name' => $tagg])->count();
@@ -126,7 +116,7 @@ class tagController extends Controller
                 $filters = DB::table('tag_items')
                     ->join('products', 'tag_items.product_id', '=', 'products.id')
                     ->where('tag_items.store_id', '=', $user->current)
-                    ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.id', 'products.name', 'products.image')
+                    ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.id', 'products.name', 'products.image', 'products.selling_price', 'products.discount', 'products.stock')
                     ->get();
 
                 return response()->json([
@@ -154,39 +144,16 @@ class tagController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
     public function update(Request $request, $id)
     {
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
-        $store_id = JWTAuth::parseToken()->toUser()->current;
+        $store_id = $user->current;
         $this->validate($request, [
             'tag' => 'required',
             'products' => 'required'
         ]);
-        
         try {
             $newTag = trim($request['tag']);
             $CheckTag = DB::table('tags')->where(['store_id' => $store_id, 'id' => $id])->first();
@@ -209,8 +176,6 @@ class tagController extends Controller
                     $tagItem->save();
                 };
                 $tags = Store::find($user->current)->getTags;
-                
-                
             }else {
                 $count = DB::table('tags')->where(['store_id' => $store_id, 'name' => $newTag])->count();
                 if($count < 1) {
@@ -218,8 +183,6 @@ class tagController extends Controller
                     $tag = Tag::findOrFail($id);
                     $tag->name = $newTag;
                     $tag->update();
-
-                    
                     foreach ($findOldTags as $old) {
                         // $tagI = TagItem::findOrFail($old->id);
                         $old->delete();
@@ -234,7 +197,6 @@ class tagController extends Controller
                     $tags = Store::find($user->current)->getTags;
 
                 }else {
-
                     return response()->json([
                         'title' => 'Error!',
                         'status' => 2,
@@ -259,13 +221,49 @@ class tagController extends Controller
         ], 200);
 
     }
+    public function addThisToTag(Request $request) {
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
+        $prodID = $request['productID'];
+        $tagID = $request['tagID'];
+        $findQuery = Tag::find($request['tagID'])->getTagItems()
+        ->where(['product_id' => $prodID, 'tag_id' => $tagID])
+        ->get();
+       if(count($findQuery) < 1) {
+            try {
+                $item = New TagItem();
+                $item->tag_id = $tagID;
+                $item->product_id = $prodID;
+                $item->store_id = $user->current;
+                $item->save();
+                $filters = DB::table('tag_items')
+                ->join('products', 'tag_items.product_id', '=', 'products.id')
+                ->where('tag_items.store_id', '=', $user->current)
+                ->where('tag_items.id', '=', $item->id)
+                ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.id', 'products.name', 'products.image', 'products.selling_price', 'products.discount', 'products.stock')
+                ->first();
+                return response()->json([
+                    'title' => 'Successful!',
+                    'status' => 'Item added',
+                    'tag' => $filters
+                ], 200);
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+            } catch (\Throwable $th) {
+                return response()->json([
+                    'title' => 'Error!',
+                    'message' => 'Could not tag, please check your connection.'
+                ], 500);
+            }
+       }else {
+            return response()->json([
+                'title' => 'Successful!',
+                'status' => 'Item already exist in this tag'
+            ], 200);
+       }
+        
+    }
+
     public function destroy($id)
     {
         if (! $user = JWTAuth::parseToken()->authenticate()) {

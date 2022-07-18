@@ -35,7 +35,7 @@ class userController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
-        $filters = [];
+        // $filters = [];
         $stores = [];
         $tags = [];
         $products = [];
@@ -45,6 +45,7 @@ class userController extends Controller
         $suppliers = [];
         $yesterday_total = 0;
         $hasStore = false;
+        $store_id = $user->current;
         try {
             if($user->role == 1) {
                 $stores = User::find($user->id)->getStores;
@@ -53,30 +54,38 @@ class userController extends Controller
             }
             if(count($stores) > 0) {
                 $hasStore = true;
-                $tags = Store::find($user->current)->getTags;
-                $products = Store::find($user->current)->getProducts()
+                $tags = Store::find($store_id)->getTags;
+                $products = Store::find($store_id)->getProducts()
                 ->where('deleted', false)
                 ->get();
-                $discounts = Store::find($user->current)->getDiscounts;
-                $suppliers = Store::find($user->current)->getSuppliers;
-                $sales = Store::find($user->current)->getSales()
+                $discounts = Store::find($store_id)->getDiscounts;
+                $suppliers = Store::find($store_id)->getSuppliers;
+                $sales = Store::find($store_id)->getSales()
                     ->where([
                     ['created_at', '>=', Carbon::today()->toDateTimeString()]
                     ])->get();
                 $sales_items = DB::table('sale_items')->where([
-                    ['store_id', '=', $user->current],
+                    ['store_id', '=', $store_id],
                     ['created_at', '>=', Carbon::today()->toDateTimeString()]
                     ])->get();
-                if(count($products) != 0 && count($tags) != 0) {
-                    $filters = DB::table('tag_items')
-                    ->join('products', 'tag_items.product_id', '=', 'products.id')
-                    ->where('tag_items.store_id', '=', $user->current)
-                    ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.name', 'products.image')
-                    ->get();
-                }
+                // if(count($products) != 0 && count($tags) != 0) {
+                //     $filters = DB::table('tag_items')
+                //     ->join('products', 'tag_items.product_id', '=', 'products.id')
+                //     ->where('tag_items.store_id', '=', $store_id)
+                //     ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.name', 'products.image')
+                //     ->get();
+                // }
+
+                // if($tags || $products) {
+                //     $filters = DB::table('tag_items')
+                //     ->join('products', 'tag_items.product_id', '=', 'products.id')
+                //     ->where(['tag_items.store_id' => $store_id , 'products.deleted' => false ])
+                //     ->select('tag_items.id', 'tag_items.tag_id', 'tag_items.store_id', 'products.id', 'products.stock', 'products.name', 'products.image', 'products.cost', 'products.selling_price', 'products.discount', 'products.created_at')
+                //     ->get();
+                // }
                 $start_date = Carbon::today()->subDays(1)->toDateTimeString();
                 $end_date = Carbon::today()->toDateTimeString();
-                $yesterday_sale = Store::find($user->current)->getSales()
+                $yesterday_sale = Store::find($store_id)->getSales()
                     ->whereBetween('created_at',[
                     $start_date, $end_date
                 ])->get();
@@ -92,7 +101,7 @@ class userController extends Controller
                     'user' => $user,
                     'stores' => $stores,
                     'tags' => $tags,
-                    'filters' => $filters,
+                    // 'filters' => $filters,
                     'products' => $products,
                     'discounts' => $discounts,
                     'sales' => $sales,

@@ -33,9 +33,11 @@ Route::apiResources([
     'search' => 'API\searchController',
     'waiting-list' => 'API\mailingController',
     'product-batch' => 'API\stockController',
+    'product-stats' => 'API\statsController',
 
 
 
+    
 
     
 
@@ -139,6 +141,10 @@ Route::post('/get-this-filter' , [
 Route::post('/get-this-discount' , [
     'uses' => 'API\discountController@getThisDiscount',
 ]);
+Route::post('/addthis-to-tag' , [
+    'uses' => 'API\tagController@addThisToTag',
+]);
+
 
 
 Route::post('/bulk-del-products', [
