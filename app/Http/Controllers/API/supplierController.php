@@ -29,6 +29,7 @@ class supplierController extends Controller
         $this->validate($request, [
             'name' => 'required'
         ]);
+        $store_id = $user->current;
         try {
             $userAdminID = $user->id;
             if($user->role != 1) {
@@ -40,7 +41,7 @@ class supplierController extends Controller
             $supplier->email = $request['email'];
             $supplier->location = $request['location'];
             $supplier->user_id = $userAdminID;
-            $supplier->store_id = $user->current;
+            $supplier->store_id = $store_id;
             $supplier->save();
 
             } catch (\Throwable $th) {
@@ -84,11 +85,12 @@ class supplierController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
+        $store_id = $user->current;
         try {
-            $suppliers = Store::find($user->current)->getSuppliers()
+            $suppliers = Store::find($store_id)->getSuppliers()
             ->where('id', $request['id'])
             ->first();
-            $products = Store::find($user->current)->getProducts()
+            $products = Store::find($store_id)->getProducts()
             ->where([
                 ['deleted', '=', false ],
                 ['supplier_id', '=', $request['id']]

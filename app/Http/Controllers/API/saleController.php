@@ -54,11 +54,12 @@ class saleController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
+        $store_id = $user->current;
         $newItemsArr = array();
         $newProductArr = array();
         try {
             $sale = new Sale();
-            $sale->store_id = $user->current;
+            $sale->store_id = $store_id;
             $sale->receipt = $request['receipt'];
             $sale->total_paid = $request['total'];
             $sale->discounted = 0;
@@ -72,7 +73,7 @@ class saleController extends Controller
             foreach ($request['items'] as $key) {
                 $item = new SaleItem();
                 $item->sale_id = $sale->id;
-                $item->store_id = $user->current;
+                $item->store_id = $store_id;
                 $item->product_id = $key['prod_id'];
                 $item->product_name = $key['name'];
                 $item->quantity = $key['qty'];
@@ -80,7 +81,7 @@ class saleController extends Controller
                 $item->total_paid = $key['qty'] * $key['unit_price'];
                 $item->price_before = $key['unit_price'];
                 if($key['discount'] != null) {
-                    $checkDis = Store::find($user->current)->getDiscounts()
+                    $checkDis = Store::find($store_id)->getDiscounts()
                     ->where('id', $key['discount'])->first();
                     if($checkDis->active == true) {
                         $item->discounted = 1;
@@ -112,7 +113,7 @@ class saleController extends Controller
             }
             $new_sale = DB::table('sales')->where('id', $sale->id)->first();
             $sales_items = DB::table('sale_items')->where([
-                ['store_id', '=', $user->current],
+                ['store_id', '=', $store_id],
                 ['created_at', '>=', Carbon::today()]
                 ])->get();
         } catch (\Throwable $th) {
@@ -131,6 +132,7 @@ class saleController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
+        $store_id = $user->current;
         $stores = [];
         $title = '';
         $type = '';
@@ -154,7 +156,7 @@ class saleController extends Controller
                 if($type == 0) {
                     //today
                     $end_date = Carbon::today()->toDateTimeString();
-                    $result = Store::find($user->current)->getSales()
+                    $result = Store::find($store_id)->getSales()
                         ->where([
                         ['created_at', '>=', $end_date]
                     ])->get();
@@ -167,7 +169,7 @@ class saleController extends Controller
                         $start_date = \Carbon\Carbon::parse($request['start'])->toDateTimeString();
                         $end_date = \Carbon\Carbon::parse($request['end'])->addDays(1)->toDateTimeString();
                     }
-                    $result = Store::find($user->current)->getSales()
+                    $result = Store::find($store_id)->getSales()
                         ->whereBetween('created_at',[
                         $start_date, $end_date
                     ])->get();
@@ -204,8 +206,9 @@ class saleController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
+        $store_id = $user->current;
         try {
-            $result = Store::find($user->current)->getSales()
+            $result = Store::find($store_id)->getSales()
             ->where('receipt', $request['receipt'])
             ->get();
         } catch (\Throwable $th) {

@@ -25,8 +25,9 @@ class productDetailController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
+        $store_id = $user->current;
         try{
-            $product = Store::find($user->current)->getProducts()
+            $product = Store::find($store_id)->getProducts()
             ->where('id', $request['id'])
             ->first();
             $units = Product::find($request['id'])->getUnits;

@@ -24,8 +24,9 @@ class stockController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
+        $store_id = $user->current;
         $units = Product::find($request['id'])->getUnits;
-        $product = Store::find($user->current)->getProducts()
+        $product = Store::find($store_id)->getProducts()
             ->where('id', $request['id'])
             ->first();
         return response()->json([
@@ -38,11 +39,12 @@ class stockController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
+        $store_id = $user->current;
         $this->validate($request, [
             'batch_no' => 'required',
         ]);
         $batch = $request['batch_no'];
-        if(!$this->checkDuplicate($batch, $user->current)) {
+        if(!$this->checkDuplicate($batch, $store_id)) {
             return response()->json([
                 'exists' => 'This Batch number already exists in your store.',
             ], 200);
@@ -55,7 +57,7 @@ class stockController extends Controller
         try {
             $unit = new Unit();
             $unit->unit_stock = $stock;
-            $unit->store_id = $user->current;
+            $unit->store_id = $store_id;
             $unit->product_id = $request['id'];
             $unit->batch_no = $batch;
             $unit->expiry_date = $request['expiry'];
@@ -85,10 +87,11 @@ class stockController extends Controller
         $this->validate($request, [
             'batch_no' => 'required',
         ]);
+        $store_id = $user->current;
         $unit = Unit::findOrFail($request['unitID']);
         $batch = $request['batch_no'];
         if($unit->batch_no != $batch) {
-            if(!$this->checkDuplicate($batch, $user->current)) {
+            if(!$this->checkDuplicate($batch, $store_id)) {
                 return response()->json([
                     'exists' => 'This Batch number already exists in your store.',
                 ], 200);

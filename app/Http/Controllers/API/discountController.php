@@ -137,12 +137,6 @@ class discountController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
-        // return response()->json([
-        //         'product' => $request['products'],
-        //         'id' => $id,
-        //         'name' => $request['name']
-        //     ], 200);
-
         $store_id = JWTAuth::parseToken()->toUser()->current;
         $this->validate($request, [
             'name' => 'required',
@@ -226,8 +220,8 @@ class discountController extends Controller
                 $product->update();
             }
         }
-        $discounts = Store::find($user->current)->getDiscounts;
-        $newProducts = Store::find($user->current)->getProducts()
+        $discounts = Store::find($store_id)->getDiscounts;
+        $newProducts = Store::find($store_id)->getProducts()
         ->where('deleted', false)
         ->get();
         return response()->json([

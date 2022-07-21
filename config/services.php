@@ -30,8 +30,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
     'google' => [
-        'client_id' => env('617984689362-02931j85j49mm913mn3lf72j4njggajg.apps.googleusercontent.com'),
-        'client_secret' => env('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'),
+        'client_id' => env('749226126008-jhs808q75ioafn76o109qcuh4peav4jl.apps.googleusercontent.com'),
+        'client_secret' => env('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'),
         'redirect' => 'http://localhost:8080/',
     ],
 

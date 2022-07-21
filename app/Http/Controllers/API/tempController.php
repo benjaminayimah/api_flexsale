@@ -29,7 +29,7 @@ class tempController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
-        
+        $store_id = $user->current;
         try {
             $userAdminID = $user->id;
             if($user->role != 1) {
@@ -40,7 +40,7 @@ class tempController extends Controller
                 $rawfile = $_FILES['image']["name"];
                 $split = explode(".", $rawfile);
                 $fileExt = end($split);
-                $imgFinaltitle = preg_replace('#[^a-z0-9]#i', '', 'prod_'.$user->current);
+                $imgFinaltitle = preg_replace('#[^a-z0-9]#i', '', 'prod_'.$store_id);
                 $filename = $imgFinaltitle . '_'. rand(1,999999999) . '.'. $fileExt;
                 $file = $request->file('image');
     
@@ -158,8 +158,9 @@ class tempController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
+        $store_id = $user->current;
         //delete from folder
-        Storage::deleteDirectory('public/'.$user->current.'/temp');
+        Storage::deleteDirectory('public/'.$store_id.'/temp');
 
         // if (Storage::disk('public')->exists($user->current.'/temp'.'/'.$id)) {
         //     Storage::disk('public')->delete($user->current.'/temp'.'/'.$id);

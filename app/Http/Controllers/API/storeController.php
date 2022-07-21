@@ -33,9 +33,9 @@ class storeController extends Controller
         foreach ($stores as $store) {
             try{
                  if ($store->id == $request['storeID']) {
-                    $user = User::find($user->id);
-                    $user->current = $request['storeID'];
-                    $user->update();
+                    $user2 = User::find($user->id);
+                    $user2->current = $request['storeID'];
+                    $user2->update();
                     return response()->json([
                         'status' => 1,
                         'message' => 'successful',
@@ -100,11 +100,11 @@ class storeController extends Controller
             return response()->json(['status' => 'User not found!'], 404);
         }
         try {
-            $store = '';
-            $storeID = $request['store'];
+            $store_id = $user->current;
+            $storeID = $request['storeID'];
             if($storeID == '') {
-                $storeID = $user->current;
-            }
+                $storeID = $store_id;
+            } 
             $userAdminID = $user->id;
             if($user->role != 1) {
                 $userAdminID = $user->admin_id;
@@ -117,7 +117,6 @@ class storeController extends Controller
                 $store->update();
                 Storage::deleteDirectory('public/'.$userAdminID.'/temp');
             };
-            
             return response()->json([
                 'message' => 'Store created!',
                 'store' => $store
@@ -137,29 +136,30 @@ class storeController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
+        $store_id = $user->current;
         try {
             $userAdminID = $user->id;
             if($user->role != 1) {
                 $userAdminID = $user->admin_id;
             }
             if($request['image'] == null) { 
-                $store = Store::find($user->current);
+                $store = Store::find($store_id);
                 $oldImage = $store->image;
                 if(!$oldImage == null) {
-                    if(Storage::disk('public')->exists($userAdminID.'/'.$user->current.'/'.$oldImage)) {
-                        Storage::disk('public')->delete($userAdminID.'/'.$user->current.'/'.$oldImage);
+                    if(Storage::disk('public')->exists($userAdminID.'/'.$store_id.'/'.$oldImage)) {
+                        Storage::disk('public')->delete($userAdminID.'/'.$store_id.'/'.$oldImage);
                     }
                 }
                 $store->image = null;
                 $store->update();
             }else{
                 if (Storage::disk('public')->exists($userAdminID.'/temp'.'/'.$request['image'])) {
-                    Storage::disk('public')->move($userAdminID.'/temp'.'/'.$request['image'], $userAdminID.'/'.$user->current.'/'.$request['image']);
-                    $store = Store::find($user->current);
+                    Storage::disk('public')->move($userAdminID.'/temp'.'/'.$request['image'], $userAdminID.'/'.$store_id.'/'.$request['image']);
+                    $store = Store::find($store_id);
                     $oldImage = $store->image;
                     $store->image = $request['image'];
                     $store->update();
-                    Storage::disk('public')->delete($userAdminID.'/'.$user->current.'/'.$oldImage);
+                    Storage::disk('public')->delete($userAdminID.'/'.$store_id.'/'.$oldImage);
                 };
             }
             Storage::deleteDirectory('public/'.$userAdminID.'/temp');
@@ -190,22 +190,22 @@ class storeController extends Controller
             'country' => 'required',  
         ]);
         try {
-        $store = Store::findOrFail($user->current);
-        $store->name = $request['name'];
-        $store->phone_1 = $request['phone1'];
-        $store->phone_2 = $request['phone2'];
-        $store->address = $request['address'];
-        $store->city = $request['city'];
-        $store->region = $request['region'];
-        $store->country = $request['country'];
-        $store->update();
+            $store = Store::findOrFail($id);
+            $store->name = $request['name'];
+            $store->phone_1 = $request['phone1'];
+            $store->phone_2 = $request['phone2'];
+            $store->address = $request['address'];
+            $store->city = $request['city'];
+            $store->region = $request['region'];
+            $store->country = $request['country'];
+            $store->update();
             
         } catch (\Throwable $th) {
             return response()->json([
                 'title' => 'Error!'
             ], 500);
         }
-        $thisStore = Store::findOrFail($user->current);
+        $thisStore = Store::findOrFail($id);
         return response()->json([
             'message' => 'Details Updated!',
             'id' => $id,

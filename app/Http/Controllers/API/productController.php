@@ -35,6 +35,7 @@ class productController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
+        $store_id = $user->current;
         $stock = 0;
         $price = 0.00;
         $cost = 0.00;
@@ -54,7 +55,7 @@ class productController extends Controller
         $today = Carbon::today();
         try {
             $product = new Product();
-            $product->store_id = $user->current;
+            $product->store_id = $store_id;
             $product->name = $request['name'];
             $product->image = null;
             $product->prod_type = $request['prodType'];
@@ -68,7 +69,7 @@ class productController extends Controller
             $product->save();
             if ($request['prodType'] == '0') {
                 $unit = new Unit();
-                $unit->store_id = $user->current;
+                $unit->store_id = $store_id;
                 $unit->product_id = $product->id;
                 $unit->batch_no = $request['batch'];
                 $unit->expiry_date = $request['expiryDate'];
@@ -80,7 +81,7 @@ class productController extends Controller
             }
             if($request['tempImage'] != null) {
                 if (Storage::disk('public')->exists($userAdminID.'/temp'.'/'.$request['tempImage'])) {
-                    Storage::disk('public')->move($userAdminID.'/temp'.'/'.$request['tempImage'], $userAdminID.'/'.$user->current.'/'.$request['tempImage']);
+                    Storage::disk('public')->move($userAdminID.'/temp'.'/'.$request['tempImage'], $userAdminID.'/'.$store_id.'/'.$request['tempImage']);
                     $productimg = Product::find($product->id);
                     $productimg->image = $request['tempImage'];
                     $productimg->update();
@@ -131,7 +132,7 @@ class productController extends Controller
             return response()->json(['status' => 'User not found!'], 404);
         }
         $user = JWTAuth::parseToken()->toUser();
-        // $type = 0;
+        $store_id = $user->current;
         $price = 0.00;
         $cost = 0.00;
         $userAdminID = $user->id;
@@ -155,17 +156,17 @@ class productController extends Controller
             if($request['tempImage'] != null && $product->image != $request['tempImage']) {
                 if (Storage::disk('public')->exists($userAdminID.'/temp'.'/'.$request['tempImage'])) {
                     $old_pic = $product->image;
-                    Storage::disk('public')->move($userAdminID.'/temp'.'/'.$request['tempImage'], $userAdminID.'/'.$user->current.'/'.$request['tempImage']);
+                    Storage::disk('public')->move($userAdminID.'/temp'.'/'.$request['tempImage'], $userAdminID.'/'.$store_id.'/'.$request['tempImage']);
                     $product->image = $request['tempImage'];
                     $product->update();
-                    if(Storage::disk('public')->exists($userAdminID.'/'.$user->current.'/'.$old_pic)) {
-                        Storage::disk('public')->delete($userAdminID.'/'.$user->current.'/'.$old_pic);
+                    if(Storage::disk('public')->exists($userAdminID.'/'.$store_id.'/'.$old_pic)) {
+                        Storage::disk('public')->delete($userAdminID.'/'.$store_id.'/'.$old_pic);
                     }
                 };
             }elseif ($request['tempImage'] == '') {
                 if(!$product->image == null) {
-                    if(Storage::disk('public')->exists($userAdminID.'/'.$user->current.'/'.$product->image)) {
-                        Storage::disk('public')->delete($userAdminID.'/'.$user->current.'/'.$product->image);
+                    if(Storage::disk('public')->exists($userAdminID.'/'.$store_id.'/'.$product->image)) {
+                        Storage::disk('public')->delete($userAdminID.'/'.$store_id.'/'.$product->image);
                     }
                 }
                 $product->image = null;
@@ -202,13 +203,13 @@ class productController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
-        $store = $user->current;
+        $store_id = $user->current;
         try {
             $userAdminID = $user->id;
             if($user->role != 1) {
                 $userAdminID = $user->admin_id;
             }
-            $tagItems = Store::find($store)->getFilters()
+            $tagItems = Store::find($store_id)->getFilters()
             ->where('product_id', $id)
             ->get();
             if(count($tagItems) > 0) {
@@ -222,7 +223,7 @@ class productController extends Controller
                     $unit->delete();
                 }
             }
-            $notification = Store::find($store)->getNotifications()
+            $notification = Store::find($store_id)->getNotifications()
             ->where('product_id', $id)
             ->get();
             if(count($notification) > 0) {
@@ -232,8 +233,8 @@ class productController extends Controller
             }
             $product = Product::findOrFail($id);
             $image = $product->image;
-            if (Storage::disk('public')->exists($userAdminID.'/'.$user->current.'/'.$image)) {
-                Storage::disk('public')->delete($userAdminID.'/'.$user->current.'/'.$image);
+            if (Storage::disk('public')->exists($userAdminID.'/'.$store_id.'/'.$image)) {
+                Storage::disk('public')->delete($userAdminID.'/'.$store_id.'/'.$image);
             }
             $product->delete();
 
