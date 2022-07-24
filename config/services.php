@@ -29,10 +29,10 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
-    'google' => [
-        'client_id' => env('749226126008-jhs808q75ioafn76o109qcuh4peav4jl.apps.googleusercontent.com'),
-        'client_secret' => env('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'),
-        'redirect' => 'http://localhost:8080/',
-    ],
+    // 'google' => [
+    //     'client_id' => env(''),
+    //     'client_secret' => env(''),
+    //     'redirect' => 'http://localhost:8080/',
+    // ],
 
 ];

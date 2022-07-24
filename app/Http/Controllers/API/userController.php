@@ -38,7 +38,7 @@ class userController extends Controller
         // $filters = [];
         $stores = [];
         $tags = [];
-        $products = [];
+        $products = array();
         $discounts = [];
         $sales = [];
         $sales_items = [];
