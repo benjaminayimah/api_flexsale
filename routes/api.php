@@ -34,13 +34,9 @@ Route::apiResources([
     'waiting-list' => 'API\mailingController',
     'product-batch' => 'API\stockController',
     'product-stats' => 'API\statsController',
-
-
-
-    
+    'forgot-password' => 'API\forgotpassController',
 
     
-
 ]);
 Route::post('/fetch-item' , [
     'uses' => 'API\saleController@fetchItem',
@@ -81,8 +77,9 @@ Route::post('/refresh-user' , [
 Route::post('/fetch-prod-batches' , [
     'uses' => 'API\stockController@fetchBatches',
 ]);
-
-
+Route::post('/reset-forgotten-password' , [
+    'uses' => 'API\forgotpassController@ResetPassword',
+]);
 
 
 Route::post('/create-admin-user' , [
