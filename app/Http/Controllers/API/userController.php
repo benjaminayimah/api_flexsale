@@ -46,6 +46,10 @@ class userController extends Controller
         $yesterday_total = 0;
         $hasStore = false;
         $store_id = $user->current;
+        $salesStats = array();
+        $interval = $request['interval'];
+        $start_date = '';
+        $end_date = '';
         try {
             if($user->role == 1) {
                 $stores = User::find($user->id)->getStores;
@@ -89,6 +93,14 @@ class userController extends Controller
                     ->whereBetween('created_at',[
                     $start_date, $end_date
                 ])->get();
+                $stats_start = Carbon::today()->subDays(7)->toDateTimeString();
+                $stats_end = Carbon::today()->addDays(1)->toDateTimeString();
+                $salesStats = Store::find($store_id)->getSalesItem()
+                    ->whereBetween('created_at',[
+                    $stats_start, $stats_end
+                    ])
+                ->get();
+
                 foreach($yesterday_sale as $key=>$value){
                 if(isset($value->total_paid))   
                     $yesterday_total += $value->total_paid;
@@ -109,7 +121,8 @@ class userController extends Controller
                     'suppliers' => $suppliers,
                     'today' => Carbon::today(),
                     'yesterday_sale' => $yesterday_total,
-                    'hasStore' => $hasStore
+                    'hasStore' => $hasStore,
+                    'salesStats' => $salesStats
                 ], 200);
             }
         } catch (\Throwable $th) {

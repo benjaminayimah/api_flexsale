@@ -151,12 +151,10 @@ class signupController extends Controller
             return response()->json(['status' => 'User not found!'], 404);
         }
         $status = 0;
-        $this->validate($request, [
-            'newPassword' => 'required|min:6'
-        ]);
         if ($id == $user->id && $user->has_pass == true) {
             $this->validate($request, [
-                'password' => 'required'
+                'password' => 'required|min:6',
+                'newPassword' => 'required|min:6'
             ]);
             try {
                 $admin = User::findOrFail($user->id);
@@ -177,6 +175,9 @@ class signupController extends Controller
             }
             
         }else{
+            $this->validate($request, [
+                'newPassword' => 'required|min:6'
+            ]);
             try {
                 $admin = User::findOrFail($id);
                 $admin->password = bcrypt($request['newPassword']);

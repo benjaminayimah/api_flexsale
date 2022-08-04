@@ -183,10 +183,8 @@ class storeController extends Controller
         }
         $this->validate($request, [
             'name' => 'required',
-            'phone1' => 'required',
             'address' => 'required',
             'city' => 'required',
-            'region' => 'required',
             'country' => 'required',  
         ]);
         try {
@@ -207,7 +205,7 @@ class storeController extends Controller
         }
         $thisStore = Store::findOrFail($id);
         return response()->json([
-            'message' => 'Details Updated!',
+            'message' => 'Store is updated!',
             'id' => $id,
             'store' => $thisStore
         ], 200);

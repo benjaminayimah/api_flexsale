@@ -140,6 +140,7 @@ class saleController extends Controller
         $result = array();
         $start_date = '';
         $end_date = '';
+        $statistics = array();
         try {
             if($user->role == 1) {
                 $stores = User::find($user->id)->getStores;
@@ -150,9 +151,6 @@ class saleController extends Controller
                 $title = $request['title'];
                 $type = $request['type'];
                 $interval = $request['interval'];
-                $result = array();
-                $start_date = '';
-                $end_date = '';
                 if($type == 0) {
                     //today
                     $end_date = Carbon::today()->toDateTimeString();
@@ -160,10 +158,16 @@ class saleController extends Controller
                         ->where([
                         ['created_at', '>=', $end_date]
                     ])->get();
+                    // $statistics = Store::find($store_id)->getSalesItem()
+                    //     ->whereBetween('created_at',[
+                    //     $start_date, $end_date
+                    //     ])
+                    // ->get();
                 }else{
                     //to today interval
                     $start_date = Carbon::today()->subDays($interval)->toDateTimeString();
                     $end_date = Carbon::today()->toDateTimeString();
+
                     //inbetween range
                     if($type == 3) {
                         $start_date = \Carbon\Carbon::parse($request['start'])->toDateTimeString();
@@ -189,7 +193,8 @@ class saleController extends Controller
             'title' => $title,
             'start_date' => $start_date,
             'end_date' => $end_date,
-            'type' => $type
+            'type' => $type,
+            'statistics' => $statistics
         ], 200);
     }
     public function fetchDetailedRecordList(Request $request) {

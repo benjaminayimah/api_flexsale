@@ -96,8 +96,8 @@ class productController extends Controller
             ], 500);
         }
         return response()->json([
-            'title' => 'Product is successfully added',
-            'body' => 'You may continue to add another product.',
+            'title' => 'Success',
+            'body' => 'Product is added!',
             'product' => $newProduct
         ], 200);
     }
@@ -190,7 +190,7 @@ class productController extends Controller
         }
         return response()->json([
             'title' => 'Success',
-            'body' => 'Product is successfully updated',
+            'body' => 'Product is updated!',
             'product' => $newProduct,
             // 'units' => $units
         ], 200);

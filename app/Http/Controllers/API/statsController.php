@@ -20,9 +20,9 @@ class statsController extends Controller
             return response()->json(['status' => 'User not found!'], 404);
         }
         $type = $request['type'];
-        $interval = $request['interval'];
         $prodID = $request['id'];
         $result = array();
+        $interval = $request['interval'];
         $start_date = '';
         $end_date = '';
         $store_id = $user->current;
