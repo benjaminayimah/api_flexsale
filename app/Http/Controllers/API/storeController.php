@@ -10,14 +10,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+// use PDF;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class storeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         //
@@ -175,7 +172,6 @@ class storeController extends Controller
         
     }
 
-
     public function update(Request $request, $id)
     {
         if (! $user = JWTAuth::parseToken()->authenticate()) {
@@ -210,13 +206,27 @@ class storeController extends Controller
             'store' => $thisStore
         ], 200);
     }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    public function generateReceipt($user, $store_id, $sale_id, $token) {
+        $authUser = $this->verifyUser($user, $token);
+        if($authUser) {
+            $store = DB::table('stores')->where('id', $store_id)->first();
+            $sale = DB::table('sales')->where(['id' => $sale_id, 'store_id' => $store_id])->first();
+            $sale_items = DB::table('sale_items')->where(['store_id' => $store_id, 'sale_id' => $sale_id])->get();
+            Pdf::setOption(['dpi' => 150, 'defaultFont' => 'sans-serif']);
+            $pdf = Pdf::loadView('PDF.receipt', array('store' => $store, 'sale' => $sale, 'sale_items' => $sale_items));
+            return $pdf->setPaper('a4', 'portrait')->stream($sale->receipt.'.pdf');
+        }else {  
+            $pdf = Pdf::loadView('PDF.error');  
+            return $pdf->setPaper('a4', 'portrait')->stream('error.pdf');
+        }
+    }
+    public function verifyUser($id, $token) {
+        $user = User::where(['id' => $id, 'remember_token' => $token])->first();
+        if(isset($user))
+        return $user;
+        else
+        return false;
+    }
     public function destroy($id)
     {
         //

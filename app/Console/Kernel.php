@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
 
         $schedule->command('discount:check')->daily();
-        $schedule->command('stock:alert')->hourly();
+        $schedule->command('stock:alert')->daily();
         $schedule->command('delete:trash')->daily();
 
     }

@@ -33,4 +33,7 @@ class Store extends Model
     public function getProductUnits() {
         return $this->hasMany(Unit::class);
     }
+    public function getAdmin() {
+        return $this->hasMany(User::class);
+    }
 }

@@ -20,6 +20,7 @@ class CreateUsersTable extends Migration
             $table->boolean('email_verified')->default(false);
             $table->string('password')->nullable();
             $table->enum('role', ['0', '1', '2' ])->default('1');
+            $table->enum('subscription_type', ['0', '1', '2' ])->default('0');
             $table->boolean('oauth')->default(false);
             $table->string('oauth_id')->nullable();
             $table->string('oauth_provider')->nullable();

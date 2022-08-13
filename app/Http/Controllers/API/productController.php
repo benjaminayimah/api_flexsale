@@ -32,8 +32,24 @@ class productController extends Controller
 
     public function store(Request $request)
     {
+        // return response()->json([
+        //     'message' => $request['expiryDate']
+        // ], 200);
+
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
+        }
+        $expires = $request['expires'];
+        $expiry_date = null;
+        $this->validate($request, [
+            'name' => 'required',
+            'batch' => 'required'
+        ]);
+        if($expires) {
+            $this->validate($request, [
+                'expiryDate' => 'required',
+            ]);
+            $expiry_date = $request['expiryDate'];
         }
         $store_id = $user->current;
         $stock = 0;
@@ -64,6 +80,7 @@ class productController extends Controller
             $product->stock = $stock;
             $product->description = $request['description'];
             $product->supplier_id = $request['supplier'];
+            $product->expires = $expires;
             $product->discount = null;
             $product->added_by = $user->name;
             $product->save();
@@ -72,10 +89,13 @@ class productController extends Controller
                 $unit->store_id = $store_id;
                 $unit->product_id = $product->id;
                 $unit->batch_no = $request['batch'];
-                $unit->expiry_date = $request['expiryDate'];
                 $unit->unit_stock = $stock;
-                if($today->gt($request['expiryDate']) ) {
-                    $unit->active = 0;
+                if ($expires) {
+                    $unit->expires = true;
+                    $unit->expiry_date = $expiry_date;
+                    if($today->gt($expiry_date) ) {
+                        $unit->active = 0;
+                    }
                 }
                 $unit->save();
             }
@@ -104,6 +124,7 @@ class productController extends Controller
 
     public function checkUnit(Request $request) {
         $store = JWTAuth::parseToken()->toUser()->current;
+        
         try {
             $check = DB::table('units')->where([
                 'store_id' =>  $store,
@@ -152,6 +173,7 @@ class productController extends Controller
             $product->selling_price = $price;
             $product->description = $request['description'];
             $product->supplier_id = $request['supplier'];
+            $product->expires = $request['expires'];
             $product->update();
             if($request['tempImage'] != null && $product->image != $request['tempImage']) {
                 if (Storage::disk('public')->exists($userAdminID.'/temp'.'/'.$request['tempImage'])) {
@@ -179,6 +201,11 @@ class productController extends Controller
             if(Storage::disk('public')->exists($userAdminID.'/temp')) {
                 Storage::deleteDirectory('public/'.$userAdminID.'/temp');
             }
+            $units = Product::find($id)->getUnits;
+            foreach ($units as $key => $value) {
+                $value->expires = $request['expires'];
+                $value->update();
+            }
             $newProduct = DB::table('products')->where('id', $product->id)->first();
 
         } catch(\Throwable $th) {
@@ -192,7 +219,7 @@ class productController extends Controller
             'title' => 'Success',
             'body' => 'Product is updated!',
             'product' => $newProduct,
-            // 'units' => $units
+            'units' => $units
         ], 200);
 
     }
@@ -221,14 +248,6 @@ class productController extends Controller
             if(count($units) > 0) {
                 foreach($units as $unit) {
                     $unit->delete();
-                }
-            }
-            $notification = Store::find($store_id)->getNotifications()
-            ->where('product_id', $id)
-            ->get();
-            if(count($notification) > 0) {
-                foreach($notification as $noti) {
-                    $noti->delete();
                 }
             }
             $product = Product::findOrFail($id);

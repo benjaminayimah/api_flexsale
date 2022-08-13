@@ -36,7 +36,7 @@ class saleController extends Controller
             $item = DB::table('units')
             ->join('products', 'units.product_id', '=', 'products.id')
             ->where(['units.store_id' => $store_id, 'units.batch_no' => $item_id])
-            ->select('units.id', 'units.product_id', 'units.batch_no', 'units.active', 'products.name', 'products.image', 'products.selling_price', 'products.discount', 'products.prod_type')
+            ->select('units.id', 'units.product_id', 'units.batch_no', 'units.active', 'units.expires', 'products.name', 'products.image', 'products.selling_price', 'products.discount', 'products.prod_type')
             ->first();
             return response()->json([
                 'item' => $item
@@ -47,6 +47,21 @@ class saleController extends Controller
             ], 500);
         }
 
+    }
+    public function fetchItemByName(Request $request) {
+        if (! $user = JWTAuth::parseToken()->authenticate()) {
+            return response()->json(['status' => 'User not found!'], 404);
+        }
+        try {
+            $item = Product::find($request['id'])->getUnits()->first();
+            return response()->json([
+                'item' => $item
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'title' => 'Error!',
+            ], 500);
+        }
     }
 
     public function store(Request $request)

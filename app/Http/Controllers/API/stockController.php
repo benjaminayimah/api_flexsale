@@ -40,29 +40,39 @@ class stockController extends Controller
             return response()->json(['status' => 'User not found!'], 404);
         }
         $store_id = $user->current;
+        $expiry_date = $request['expiry'];
+        $expires = $request['expires'];
         $this->validate($request, [
             'batch_no' => 'required',
+            'stock' => 'required'
         ]);
+        if($expires == 1) {
+            $this->validate($request, [
+                'expiry' => 'required',
+            ]);
+        }
         $batch = $request['batch_no'];
         if(!$this->checkDuplicate($batch, $store_id)) {
             return response()->json([
                 'exists' => 'This Batch number already exists in your store.',
             ], 200);
         }
-        $stock = 0;
-        if($request['stock'] != '') {
-            $stock = $request['stock'];
+        $stock = $request['stock'];
+        if($request['stock'] < 0) {
+            $stock = 0;
         }
-        $today = Carbon::today();
         try {
             $unit = new Unit();
             $unit->unit_stock = $stock;
             $unit->store_id = $store_id;
             $unit->product_id = $request['id'];
             $unit->batch_no = $batch;
-            $unit->expiry_date = $request['expiry'];
-            if($today->gt($request['expiry']) ) {
-                $unit->active = 0;
+            $unit->expiry_date = $expiry_date;
+            if($expires == 1) {
+                if($this->checkExpiry($request['expiry'])) {
+                    $unit->active = 0;
+                }
+                $unit->expires = true;
             }
             $unit->save();
             $product = $this->updateProductStk($request['id']);
@@ -84,9 +94,16 @@ class stockController extends Controller
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
         }
+        $expiry_date = $request['expiry'];
         $this->validate($request, [
             'batch_no' => 'required',
+            'stock' => 'required'
         ]);
+        if($request['expires'] == 1) {
+            $this->validate($request, [
+                'expiry' => 'required',
+            ]);
+        }
         $store_id = $user->current;
         $unit = Unit::findOrFail($request['unitID']);
         $batch = $request['batch_no'];
@@ -98,18 +115,15 @@ class stockController extends Controller
             }
         }
         try {
-            $stock = 0;
-            if($request['stock'] != '') {
-                $stock = $request['stock'];
-            }
-            $today = Carbon::today();
-            $unit->unit_stock = $unit->unit_stock + $stock;
+            $unit->unit_stock = $request['stock'];
             $unit->batch_no = $batch;
-            $unit->expiry_date = $request['expiry'];
-            if($today->gt($request['expiry']) ) {
-                $unit->active = 0;
-            }else{
-                $unit->active = 1;
+            $unit->expiry_date = $expiry_date;
+            if($request['expires'] == 1) {
+                if($this->checkExpiry($expiry_date)) {
+                    $unit->active = 0;
+                }else{
+                    $unit->active = 1;
+                }
             }
             $unit->update();
             $product = $this->updateProductStk($id);
@@ -124,6 +138,13 @@ class stockController extends Controller
             'unit' => $unit,
             'stock' => $product
         ], 200);
+    }
+    public function checkExpiry($date) {
+        $today = Carbon::today();
+        if($today->gt($date))
+        return true;
+        else
+        return false;
     }
     public function checkDuplicate($batch, $store) {
         $check = Store::findOrFail($store)->getProductUnits()

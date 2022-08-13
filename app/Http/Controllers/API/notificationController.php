@@ -79,6 +79,7 @@ class notificationController extends Controller
             $expired_prods = DB::table('units')
                 ->join('products', 'units.product_id', '=', 'products.id')
                 ->where('units.store_id', $store_id)
+                ->where('units.expires', true)
                 ->where('units.expiry_date', '<', $today)
                 ->where('products.deleted', false)
                 ->select('units.*')

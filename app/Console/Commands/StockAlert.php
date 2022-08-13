@@ -41,7 +41,7 @@ class StockAlert extends Command
         $now = Carbon::today();
         $products = Unit::all();
         foreach ($products as $key) {
-            if($now->gt($key->expiry_date) ) {
+            if($key->expires == true && $now->gt($key->expiry_date) ) {
                 $key->active = 0;
                 $key->update();
             }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\storeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,6 +17,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/pdf-receipt', function () {
-    return view('PDF.receipt');
+Route::get('/welcome-email', function () {
+    return view('Email.welcomeMail');
+});
+
+Route::get('/generate-receipt/{user}/{store}/{receipt}/{token}', [storeController::class, 'generateReceipt']);
+
+Route::get('/template', function () {
+    return view('Email.template');
 });

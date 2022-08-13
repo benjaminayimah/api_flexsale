@@ -19,6 +19,7 @@ class CreateUnitsTable extends Migration
             $table->string('product_id');
             $table->string('batch_no');
             $table->string('unit_stock')->nullable();
+            $table->boolean('expires')->default(false);
             $table->string('expiry_date')->nullable();
             $table->boolean('active')->default(true);
             $table->timestamps();

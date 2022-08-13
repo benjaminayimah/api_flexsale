@@ -78,12 +78,10 @@ class tempController extends Controller
                 $imgFinaltitle = preg_replace('#[^a-z0-9]#i', '', 'store_'.$userAdminID);
                 $filename = $imgFinaltitle . '_'. rand(1,999999999) . '.'. $fileExt;
                 $file = $request->file('image');
-    
                 if (!Storage::directories('public/'.$userAdminID.'/temp')) {
                     Storage::makeDirectory('public/'.$userAdminID.'/temp');
                 }
                 Storage::disk('public')->put($userAdminID.'/temp'.'/'.$filename, File::get($file));
-                
                 return response()->json([
                     'image' => $filename,
                 ], 200);

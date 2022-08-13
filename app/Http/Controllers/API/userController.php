@@ -9,27 +9,11 @@ use App\Store;
 use Carbon\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 
 class userController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         if (! $user = JWTAuth::parseToken()->authenticate()) {
@@ -47,7 +31,6 @@ class userController extends Controller
         $hasStore = false;
         $store_id = $user->current;
         $salesStats = array();
-        $interval = $request['interval'];
         $start_date = '';
         $end_date = '';
         try {
@@ -100,20 +83,21 @@ class userController extends Controller
                     $stats_start, $stats_end
                     ])
                 ->get();
-
                 foreach($yesterday_sale as $key=>$value){
                 if(isset($value->total_paid))   
                     $yesterday_total += $value->total_paid;
                 }                
             }
-            
+            $remember_token = Str::random(60);
+            $authUser = User::findOrFail($user->id);
+            $authUser->remember_token = $remember_token;
+            $authUser->update();
             if($user->role == '0' || $user->role == '1' || $user->role == '2'){
                 return response()->json([
                     'status' => 1,
                     'user' => $user,
                     'stores' => $stores,
                     'tags' => $tags,
-                    // 'filters' => $filters,
                     'products' => $products,
                     'discounts' => $discounts,
                     'sales' => $sales,
@@ -122,7 +106,9 @@ class userController extends Controller
                     'today' => Carbon::today(),
                     'yesterday_sale' => $yesterday_total,
                     'hasStore' => $hasStore,
-                    'salesStats' => $salesStats
+                    'salesStats' => $salesStats,
+                    'remember_token' => $remember_token
+
                 ], 200);
             }
         } catch (\Throwable $th) {
@@ -182,17 +168,7 @@ class userController extends Controller
         ], 200);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
+   
     /**
      * Update the specified resource in storage.
      *
@@ -205,12 +181,7 @@ class userController extends Controller
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+  
     public function destroy($id)
     {
         //

@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use Laravel\Socialite\Facades\Socialite;
 
 
 class signinController extends Controller
@@ -64,7 +63,6 @@ class signinController extends Controller
                     'status' => 'Could not create token.'
                 ], 500);
             }
-        
             return response()->json([
                 'status' => $status,
                 'token' => $token
@@ -142,6 +140,9 @@ class signinController extends Controller
     public function destroy()
     {
         $user = JWTAuth::parseToken()->toUser(); 
+        $authUser = User::findOrFail($user->id);
+        $authUser->remember_token = null;
+        $authUser->update();
         return response()->json(['status', 'logged out!'], 200);
     }
 }

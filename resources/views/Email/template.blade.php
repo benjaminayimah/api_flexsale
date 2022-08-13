@@ -12,17 +12,17 @@
                 <table style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; width: 100%; margin: 0 auto">
                     <tbody style="line-height: 1.5">
                         <tr>
-                            <td style="font-size: 15px; font-weight: 400; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+                            <td style="font-size: 15px; font-weight: 400;">
                                 <div>
                                     <p>
                                         <div style="background-color: #F4F4F7; padding: 30px 0">
-                                        <div style=" text-align: center; font-size: 22px"><strong>{{ $store->name }}</strong></div>
-                                            <div style=" text-align: center">{{ $store->address }}</div>
-                                            <div style=" text-align: center">Phone: {{ $store->phone_1 }} {{ $store->phone_2 }}</div>
+                                        <div style=" text-align: center; font-size: 22px"><strong>ABC Pharceuticals</strong></div>
+                                            <div style=" text-align: center; ">No. 7 Lagoon Street, La</div>
+                                            <div style=" text-align: center; ">Phone: 054 123 4567, 123 456 7890</div>
                                         </div>
                                     </p>
                                     <p>
-                                        <div style="font-size: 22px;"><span style="color: #435ADE;">Receipt: </span><span style="color: #7A7D84;">#{{ $sale->receipt }}</span></div>
+                                        <div style="font-size: 22px;"><span style="color: #435ADE;">Receipt: </span><span style="color: #7A7D84;">#1234567890</span></div>
                                         <div><label><strong>Date: </strong></label><span>Aug 05, 2022 03:36 pm</span></div>
                                         <div><label><strong>Sold by: </strong></label><span>Benjamin Ayimah</span></div>
                                     </p>
@@ -34,34 +34,38 @@
                                 <table style="width: 100%; margin: 0 auto; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;border-collapse: collapse;">
                                     <thead style="border-bottom: 2px solid #e9ebf0;">
                                         <tr style="text-align: left">
-                                            <th style="padding: 12px 0;text-align:left">Product Description</th>
-                                            <th style="padding: 12px 0; text-align:center">Qty</th>
-                                            <th style="padding: 12px 0; text-align:center">Price <span>(GHS)</span></th>
+                                            <th style="padding: 12px 0; text-align:left">Product description</th>
+                                            <th style="padding: 12px 0;">Qty</th>
+                                            <th style="padding: 12px 0;">Price <span>(GHS)</span></th>
                                             <th style="padding: 12px 0;text-align: right;">Amount <span>(GHS)</span></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($sale_items as $key => $value)
-                                            <tr>
-                                                <td style="padding: 8px 0;">{{ $value->product_name }}</td>
-                                                <td style="padding: 8px 0; text-align:center"><span style="color:#7A7D84; margin-right: 6px">x</span>{{ $value->quantity }}</td>
-                                                <td style="padding: 8px 0;text-align:center">{{ number_format(round($value->price_before, 2)) }}</td>
-                                                <td style="padding: 8px 0;text-align: right;">{{ number_format(round($value->total_paid, 2)) }}</td>
-                                            </tr>
-                                        @endforeach
+                                        <tr>
+                                            <td style="padding: 8px 0;">Huawei mate book pro</td>
+                                            <td style="padding: 8px 0;"><span style="color:#7A7D84; margin-right: 6px">x</span>4</td>
+                                            <td style="padding: 8px 0;">650</td>
+                                            <td style="padding: 8px 0;text-align: right;">2,600</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 8px 0;">Huawei mate book pro</td>
+                                            <td style="padding: 8px 0;"><span style="color:#7A7D84; margin-right: 6px">x</span>4</td>
+                                            <td style="padding: 8px 0;">650</td>
+                                            <td style="padding: 8px 0; text-align: right;">2,600</td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                            <hr style="border-top: 2px solid #e9ebf0; border-bottom: none; border-right: none; border-left: none">
+                            <hr style="border-top: 2px solid #e9ebf0; border-bottom:none; border-right: none; border-left: none">
                                 <table style="width: 50%; margin-left: auto;border-collapse: collapse;">
                                     <tbody>
                                         <thead>
                                             <tr>
                                                 <th style="padding: 12px 0; text-align: left">Sub total:</th>
-                                                <th style="text-align: right;padding: 12px 0">{{ number_format(round($sale->total_paid, 2)) }}</th>
+                                                <th style="text-align: right;padding: 12px 0">2,897</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -80,10 +84,10 @@
                         </tr>
                         <tr>
                             <td>
-                                <table style="width: 50%; margin-left: auto;border-collapse: collapse;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+                                <table style="width: 50%; margin-left: auto;border-collapse: collapse;">
                                     <thead>
                                         <th style="padding: 12px 0; text-align: left; font-size: 24px">Total Amount:</th>
-                                        <th style="padding: 12px 0; text-align: right; font-size: 24px"><span style="font-weight: 400;margin-right: 6px">GHS</span><span>{{ number_format(round($sale->total_paid, 2)) }}</span></th>
+                                        <th style="padding: 12px 0; text-align: right; font-size: 24px"><span style="font-weight: 400;margin-right: 6px">GHS</span><span>2,897</span></th>
                                     </thead>
                                 </table>
                             </td>
