@@ -18,13 +18,15 @@
                                         <div style="background-color: #F4F4F7; padding: 30px 0">
                                         <div style=" text-align: center; font-size: 22px"><strong>{{ $store->name }}</strong></div>
                                             <div style=" text-align: center">{{ $store->address }}</div>
-                                            <div style=" text-align: center">Phone: {{ $store->phone_1 }} {{ $store->phone_2 }}</div>
+                                            <div style=" text-align: center">Phone: {{ $store->phone_1 }}, {{ $store->phone_2 }}</div>
                                         </div>
                                     </p>
                                     <p>
                                         <div style="font-size: 22px;"><span style="color: #435ADE;">Receipt: </span><span style="color: #7A7D84;">#{{ $sale->receipt }}</span></div>
-                                        <div><label><strong>Date: </strong></label><span>Aug 05, 2022 03:36 pm</span></div>
-                                        <div><label><strong>Sold by: </strong></label><span>Benjamin Ayimah</span></div>
+                                        <div><label><strong>Date: </strong></label><span>{{ $sale->created_at }}</span></div>
+                                        <div><label><strong>Sold by: </strong></label><span>{{ $sale->added_by }}</span></div>
+                                        <div><label><strong>Amount paid: </strong></label><span>{{ $store->currency_code }}</span><span>{{ $sale->amount_recieved }}</span></div>
+                                        <div><label><strong>Change: </strong></label><span>{{ $store->currency_code }}</span><span>{{ $sale->balance }}</span></div>
                                     </p>
                                 </div>
                             </td>
@@ -36,8 +38,8 @@
                                         <tr style="text-align: left">
                                             <th style="padding: 12px 0;text-align:left">Product Description</th>
                                             <th style="padding: 12px 0; text-align:center">Qty</th>
-                                            <th style="padding: 12px 0; text-align:center">Price <span>(GHS)</span></th>
-                                            <th style="padding: 12px 0;text-align: right;">Amount <span>(GHS)</span></th>
+                                            <th style="padding: 12px 0; text-align:center">Price <span>({{ $store->currency_code }})</span></th>
+                                            <th style="padding: 12px 0;text-align: right;">Amount <span>({{ $store->currency_code }})</span></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -83,7 +85,7 @@
                                 <table style="width: 50%; margin-left: auto;border-collapse: collapse;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
                                     <thead>
                                         <th style="padding: 12px 0; text-align: left; font-size: 24px">Total Amount:</th>
-                                        <th style="padding: 12px 0; text-align: right; font-size: 24px"><span style="font-weight: 400;margin-right: 6px">GHS</span><span>{{ number_format(round($sale->total_paid, 2)) }}</span></th>
+                                        <th style="padding: 12px 0; text-align: right; font-size: 24px"><span style="font-weight: 400;margin-right: 6px">{{ $store->currency_code }}</span><span>{{ number_format(round($sale->total_paid, 2)) }}</span></th>
                                     </thead>
                                 </table>
                             </td>

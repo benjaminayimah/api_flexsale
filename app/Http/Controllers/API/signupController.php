@@ -165,7 +165,7 @@ class signupController extends Controller
                     $admin->update();
                 }else {
                     return response()->json([
-                        'message' => 'The password you entered was incorrect.'
+                        'message' => 'The password you entered is incorrect.'
                     ], 201);
                 }
             } catch (\Throwable $th) {

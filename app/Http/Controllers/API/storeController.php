@@ -68,6 +68,7 @@ class storeController extends Controller
         $store->city = $request['city'];
         $store->region = $request['region'];
         $store->country = $request['country'];
+        $store->currency_code = $request['currency_code'];
         $store->save();
         
         $thisStore = '';
@@ -171,7 +172,6 @@ class storeController extends Controller
         ], 200);
         
     }
-
     public function update(Request $request, $id)
     {
         if (! $user = JWTAuth::parseToken()->authenticate()) {
@@ -192,6 +192,7 @@ class storeController extends Controller
             $store->city = $request['city'];
             $store->region = $request['region'];
             $store->country = $request['country'];
+            $store->currency_code = $request['currency_code'];
             $store->update();
             
         } catch (\Throwable $th) {

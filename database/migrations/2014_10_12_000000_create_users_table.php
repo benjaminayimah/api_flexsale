@@ -29,6 +29,8 @@ class CreateUsersTable extends Migration
             $table->string('admin_id')->nullable();
             $table->string('store_1')->nullable();
             $table->string('store_2')->nullable();
+            $table->integer('stock_limit')->default(10);
+            $table->integer('expiring_limit')->default(30);
             $table->rememberToken()->nullable();
             $table->timestamps();
         });

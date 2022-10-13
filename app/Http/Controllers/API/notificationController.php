@@ -65,9 +65,10 @@ class notificationController extends Controller
         }
         if(count($stores) > 0) {
             $store_id = $user->current;
+            $stock_limit = $user->stock_limit;
             //low stock
             $low_stock = Store::find($store_id)->getProducts()
-            ->where([['stock', '<', 10], ['deleted', '=>', false]])
+            ->where([['stock', '<', $stock_limit], ['deleted', '=>', false]])
             ->get();
             if(isset($low_stock)) {
                 $noti_key = 'low-stocks';
@@ -90,7 +91,7 @@ class notificationController extends Controller
                 array_push($notificationsArr, $this->computeNotification($expired_prods, $store_id, $noti_key, $unit));
             }
             //expiring soon
-            $expiry_limit = 30;
+            $expiry_limit = $user->expiring_limit;
             $today_plus_30 = \Carbon\Carbon::parse()->addDays($expiry_limit);
             $expiring_soon = DB::table('units')
                 ->join('products', 'units.product_id', '=', 'products.id')

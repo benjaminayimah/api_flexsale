@@ -17,7 +17,7 @@
                                     <p>
                                     <div style="background-color: #F4F4F7; padding: 30px 0">
                                     <div style=" text-align: center; font-size: 22px"><strong>Error generating pdf!</strong></div>
-                                        <div style=" text-align: center; color: #e63232 ">Either your're an authorized user or an invalid token.</div>
+                                        <div style=" text-align: center; color: #e63232 ">Either your're an unauthorized user or an invalid token. Refresh the page and try again.</div>
                                     </div>
                                     </p>
                                 </div>

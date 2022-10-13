@@ -84,7 +84,7 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'support@flexsale.store'),
+        'address' => env('MAIL_FROM_ADDRESS', 'info@flexsale.store'),
         'name' => env('MAIL_FROM_NAME', 'Flexsale'),
     ],
 

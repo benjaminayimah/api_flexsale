@@ -16,16 +16,6 @@ use Illuminate\Support\Facades\DB;
 
 class saleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
     public function fetchItem(Request $request) {
         if (! $user = JWTAuth::parseToken()->authenticate()) {
             return response()->json(['status' => 'User not found!'], 404);
@@ -72,6 +62,14 @@ class saleController extends Controller
         $store_id = $user->current;
         $newItemsArr = array();
         $newProductArr = array();
+        $received = 0.00;
+        if($request['received'] != '') {
+            $received = $request['received'];
+        }
+        $change = 0.00;
+        if($request['change'] != '' && $request['change'] > 0) {
+            $change = $request['change'];
+        }
         try {
             $sale = new Sale();
             $sale->store_id = $store_id;
@@ -80,8 +78,8 @@ class saleController extends Controller
             $sale->discounted = 0;
             $sale->discount_val = null;
             $sale->price_before = null;
-            $sale->amount_recieved = null;
-            $sale->balance = null;
+            $sale->amount_recieved = $received;
+            $sale->balance = $change;
             $sale->added_by = $user->name;
             $sale->save();
 
@@ -140,7 +138,12 @@ class saleController extends Controller
             'sale' => $new_sale,
             'sale_items' => $sales_items,
             'items' => $newItemsArr,
-            'product' => $newProductArr
+            'product' => $newProductArr,
+            'total' => $sale->total_paid,
+            'receipt' => $sale->receipt,
+            'id' => $sale->id,
+            'receive' => $received,
+            'change' => $change
         ], 200);
     }
     public function filterSaleRecord(Request $request) {
