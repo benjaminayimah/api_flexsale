@@ -173,7 +173,6 @@ class signupController extends Controller
                     'title' => 'Error!'
                 ], 500);
             }
-            
         }else{
             $this->validate($request, [
                 'newPassword' => 'required|min:6'
